@@ -1,6 +1,6 @@
 # ML Microservice
 
-ML Microservice for LinguistAI
+ML Microservice for Linguist AI
 
 Check out:
 
