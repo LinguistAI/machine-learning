@@ -1,3 +1,9 @@
 .pth
 .h5
 .gguf
+.env
+*.env
+*.env*
+
+__pycache__/*
+__pycache__
