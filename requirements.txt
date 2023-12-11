@@ -7,3 +7,5 @@ langchain_experimental
 python-dotenv
 torch
 torchvision
+flask_sqlalchemy
+pymysql
