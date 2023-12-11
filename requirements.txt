@@ -3,5 +3,5 @@ langsmith
 flask
 argparse
 langchain_experimental
-llama-cpp-python
-dotenv
+# llama-cpp-python
+python-dotenv
