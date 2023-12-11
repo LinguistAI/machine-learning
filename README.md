@@ -12,3 +12,7 @@ Check out:
 Download the quantized llama-2-7b-chat.Q4_0.gguf model:
 
 - https://huggingface.co/TheBloke/Llama-2-7b-Chat-GGUF/resolve/main/llama-2-7b-chat.Q4_0.gguf
+
+Dockerfile referance to:
+
+- https://github.com/3x3cut0r/docker/blob/main/llama-cpp-python/Dockerfile

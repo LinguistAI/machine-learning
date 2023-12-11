@@ -1,5 +1,5 @@
-# Use an official Python runtime as a parent image
-FROM python:3.12-alpine
+# Use an official PyTorch image as a parent image
+FROM pytorch/pytorch:latest
 
 # Set the working directory to /app
 WORKDIR /app
@@ -8,9 +8,8 @@ WORKDIR /app
 COPY . /app
 
 # Setup llama-cpp-python
-RUN apk add --no-cache --virtual .build-deps build-base cmake ninja-build && \
-    apk add --no-cache curl openblas-dev runit tzdata && \
-    rm -rf /var/lib/apt/lists/* && \
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive TZ=Europe/France apt-get install -y build-essential cmake ninja-build curl libopenblas-dev runit && \
     python -m venv /venv && \
     /venv/bin/pip install --upgrade pip \
         anyio \
@@ -27,10 +26,10 @@ RUN apk add --no-cache --virtual .build-deps build-base cmake ninja-build && \
     /venv/bin/pip install --no-cache-dir llama-cpp-python
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN /venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # Expose the port the app runs on
-EXPOSE 5000
+EXPOSE 5110
 
 # Run app.py when the container launches
-CMD ["python", "/app/app.py"]
+CMD ["/venv/bin/python", "/app/app.py"]

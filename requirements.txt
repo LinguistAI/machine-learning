@@ -5,3 +5,5 @@ argparse
 langchain_experimental
 # llama-cpp-python
 python-dotenv
+torch
+torchvision

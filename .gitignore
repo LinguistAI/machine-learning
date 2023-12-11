@@ -7,3 +7,6 @@
 
 __pycache__/*
 __pycache__
+*.gguf
+.gguf
+models/*

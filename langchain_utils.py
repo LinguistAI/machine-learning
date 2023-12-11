@@ -13,7 +13,8 @@ from langchain.llms import LlamaCpp
 import logging
 import os
 
-# from dotenv import load_dotenv
+from dotenv import load_dotenv
+load_dotenv()
 
 template_messages = [
     SystemMessage(content="You are a helpful assistant."),
@@ -33,10 +34,16 @@ else:
 logging.info(f"Running on: {DEVICE_TYPE}")
 # logging.info(f"Display Source Documents set to: {SHOW_SOURCES}")
 
+# model_path = os.getenv("MODEL_PATH")
+# model_path = "./llama-2-7b-chat.Q4_0.gguf"
+
 model_path = "/Users/tolgaozgun/models/llama-2-7b-chat.Q4_0.gguf"
+# model_path = "/app/models/llama-2-7b-chat.Q4_0.gguf"
 
 # Check if path exists
 print(f"Model path: {model_path}. Model is found?: {os.path.exists(model_path)}")
+# print(f'1- {os.listdir("/app/models")}')
+# print(f'3- {os.listdir("/app")}')
 
 llm = LlamaCpp(
     model_path=model_path,
