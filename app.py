@@ -31,9 +31,13 @@ def chat_route():
         prompt_response_dict["status"] = 200
         prompt_response_dict["msg"] = "Success"
         return jsonify(prompt_response_dict), 200
-    else:
+    elif not user_prompt:
         prompt_response_dict["status"] = 400
         prompt_response_dict["msg"] = "No user prompt received"
+        return jsonify(prompt_response_dict), 400
+    elif not user_email:
+        prompt_response_dict["status"] = 400
+        prompt_response_dict["msg"] = "No user email received"
         return jsonify(prompt_response_dict), 400
         
 
