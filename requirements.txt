@@ -3,7 +3,8 @@ langsmith
 flask
 argparse
 langchain_experimental
-# llama-cpp-python
+langchain-community
+llama-cpp-python
 python-dotenv
 torch
 torchvision

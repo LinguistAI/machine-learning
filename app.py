@@ -9,7 +9,7 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv
 import os
 from flask import jsonify, request
-from langchain_utils import chain, prompt_template
+from langchain_utils import chain, score_chain
 
 load_dotenv()
 
@@ -55,7 +55,7 @@ def chat_route():
         if conversation:
             # Retrieve the conversation and pass it to the LLM chain as context
             context = "\n".join([message.sender_type + ": " + message.message_text for message in conversation.messages])
-            res = chain.run({"prompt": user_prompt, "context": context})
+            res = chain.invoke({"prompt": user_prompt, "context": context})
 
             # Add user message to the conversation
             user_message = Message(id=str(uuid.uuid4()), sender_email=user_email, sender_type="human", message_text=user_prompt, conversation=conversation)
@@ -89,7 +89,7 @@ def chat_route():
             print(f'User message id: {user_message.id}')
             
             # Get the answer from the chain
-            res = chain.run({"prompt": user_prompt, "context": "No previous chat history."})
+            res = chain.invoke({"prompt": user_prompt, "context": "No previous chat history."})
 
             # Add bot message to the conversation
             bot_answer = str(res).strip()
@@ -128,12 +128,50 @@ def chat_route():
         else:
             prompt_response_dict = {
                 "status": 500,
-                "msg": "Unknown error occured. Please report to the administrator.",
+                "msg": "Unknown error occurred. Please report to the administrator.",
                 "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             }
             return jsonify(prompt_response_dict), 500
-    
-        
+
+
+@app.route("/model/api/score", methods=["POST"])
+def score_route():
+    json_content = request.json
+    user_prompt = json_content.get("prompt", None)
+    word_to_check = json_content.get("word", None)
+
+    if user_prompt and word_to_check:
+
+        res = score_chain.invoke({"user_prompt": user_prompt, "word": word_to_check})
+
+        prompt_response_dict = {
+            "data": {
+                "prompt": user_prompt,
+                "answer": res
+            },
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "status": 200,
+            "msg": "Success"
+        }
+        return jsonify(prompt_response_dict), 200
+    else:
+        if not user_prompt:
+            msg = "No user prompt received"
+            status = 400
+        elif not word_to_check:
+            msg = "No word to be checked received"
+            status = 400
+        else:
+            msg = "Unknown error occurred. Please report to the administrator."
+            status = 500
+
+        prompt_response_dict = {
+            "status": status,
+            "msg": msg,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        return jsonify(prompt_response_dict), status
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
