@@ -2,14 +2,11 @@
 from operator import itemgetter
 import torch
 from langchain.chains import LLMChain
-from langchain.memory import ConversationBufferMemory
 from langchain_experimental.chat_models import Llama2Chat
 from langchain.prompts.chat import (
     ChatPromptTemplate,
-    HumanMessagePromptTemplate,
-    MessagesPlaceholder,
 )
-from langchain.schema import SystemMessage
+from langchain.prompts.few_shot import FewShotPromptTemplate
 from langchain.llms import LlamaCpp
 import logging
 import os
@@ -23,6 +20,23 @@ load_dotenv()
 #     HumanMessagePromptTemplate.from_template("{text}"),
 # ]
 # prompt_template = ChatPromptTemplate.from_messages(template_messages)
+
+score_template = """
+You will be given an English sentence and you will need to score a word in the sentence. Only score the word based on the following properties:
+1- Gramatical correctness
+2- Spelling
+3- Punctuation
+4- Capitalization
+5- Word choice
+6- Sentence structure
+
+The sentence is:
+{sentence}
+
+The word is:
+{word}
+"""
+
 prompt_template = """
 You are an AI language companion designed to assist English language learners at the A2 conversational level or higher. 
 Your primary goal is to facilitate writing and speaking practice by engaging users in meaningful conversations. 
@@ -33,8 +47,28 @@ Keep the interaction focused on language learning, and adapt your prompts to max
 The chat history is:
 {context}
 
-User has said:
+User's new message:
 {prompt}
+"""
+
+profile_template = """
+You are an advanced AI language companion, designed to assist English language learners at the A2 conversational level or higher. Your primary objective is to facilitate writing and speaking practice by engaging users in meaningful conversations.
+
+Task:
+
+Analyze the user's messages from the conversation history and create a user profile. The profile should include the following categories based on the user's expressed preferences and sentiments:
+
+User loves: Identify and list topics, activities, or subjects the user has shown a strong positive sentiment towards.
+User likes: Highlight topics, activities, or subjects the user has expressed moderate or mild positive interest in.
+User doesn't like: Note any topics, activities, or subjects where the user has shown disinterest or mild negative sentiment.
+User hates: Detail any topics, activities, or subjects the user has expressed strong negative sentiment towards.
+User profile information: Summarize any personal information or characteristics the user has shared, like age, occupation, language proficiency, hobbies, etc., which can be used to tailor future conversations for language learning purposes.
+
+User's current profile is:
+{profile}
+
+The chat history is:
+{context}
 """
 
 if torch.backends.mps.is_available():
@@ -72,5 +106,26 @@ prompt = ChatPromptTemplate.from_template(prompt_template)
 chain = LLMChain(
     llm=model,
     prompt=prompt)
-                 
+
+profile_prompt = ChatPromptTemplate.from_template(profile_template)
+profile_chain = LLMChain(
+    llm=model,
+    prompt=profile_prompt)
+
+
+score_prompt = ChatPromptTemplate.from_template(score_template)
+score_chain = LLMChain(
+    llm=model,
+    prompt=score_prompt)
+   
     
+
+few_shot_examples = [
+    
+]
+
+few_shot_prompt = FewShotPromptTemplate(
+    examples=few_shot_examples,
+    
+    
+)
