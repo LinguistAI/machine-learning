@@ -172,6 +172,35 @@ def score_route():
         }
         return jsonify(prompt_response_dict), status
 
+@app.route("/model/api/test", methods=["POST"])
+def test_route():
+    json_content = request.json
+    user_prompt = json_content.get("prompt", None)
+
+    if user_prompt:
+        prompt_response_dict = {
+            "data": {
+                "prompt": f"Received prompt: {user_prompt}",
+            },
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            "status": 200,
+            "msg": "Success"
+        }
+        return jsonify(prompt_response_dict), 200
+    else:
+        if not user_prompt:
+            msg = "No user prompt received"
+            status = 400
+        else:
+            msg = "Unknown error occurred. Please report to the administrator."
+            status = 500
+        prompt_response_dict = {
+            "status": status,
+            "msg": msg,
+            "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        }
+        return jsonify(prompt_response_dict), status
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
