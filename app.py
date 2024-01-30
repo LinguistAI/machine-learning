@@ -142,7 +142,7 @@ def score_route():
 
     if user_prompt and word_to_check:
 
-        res = score_chain.invoke({"user_prompt": user_prompt, "word": word_to_check})
+        res = score_chain.invoke({"input": user_prompt})
 
         prompt_response_dict = {
             "data": {

@@ -17,6 +17,8 @@ from langchain.prompts import PromptTemplate
 from langchain_core.pydantic_v1 import BaseModel, Field, validator
 import logging
 import os
+from langchain.prompts.few_shot import FewShotPromptTemplate
+from langchain.prompts.prompt import PromptTemplate
 
 from dotenv import load_dotenv
 
@@ -75,6 +77,50 @@ chain = LLMChain(
     llm=model,
     prompt=prompt)
 
+
+examples = [
+    {
+        "question": "What is the score of the word 'are' in 'How are you?'",
+        "answer": """
+            Are follow up questions needed here: Yes.
+            Follow up: How well is the word 'are' used in the given sentence? 
+            Intermediate answer: Very well.
+            So the final answer is: 10
+            """,
+    },
+    {
+        "question": "What is the score of the word 'faith' in 'Get some faith please?'",
+        "answer": """
+                Are follow up questions needed here: Yes.
+                Follow up: How well is the word 'faith' used in the given sentence? 
+                Intermediate answer: Not well, meaning can be understood but the usage is not colloquial. 
+                So the final answer is: 4
+                """,
+    },
+    {
+        "question": "What is the score of the word 'help' in 'My dog eats help'?",
+        "answer": """
+                Are follow up questions needed here: Yes.
+                Follow up: How well is the word 'help' used in the given sentence? 
+                Intermediate answer: Not well. The usage is not correct.
+                So the final answer is: 0
+                """,
+    },
+]
+
+example_prompt = PromptTemplate(
+    input_variables=["question", "answer"], template="Question: {question}\n{answer}"
+)
+
+print(example_prompt.format(**examples[0]))
+
+few_shot_prompt = FewShotPromptTemplate(
+    examples=examples,
+    example_prompt=example_prompt,
+    suffix="Question: {input}",
+    input_variables=["input"],
+)
+
 score_prompt_template = """
 Task:
 Evaluate how well the word "{word}" is used in the user's message, assigning a score between 0 and 10 based on English language rules. 
@@ -83,15 +129,15 @@ Consider context, grammar, and appropriateness.
 User Message:
 "{user_prompt}"
 
-Scoring Guidelines:
+Return only the score and nothing else:
 
-10: Outstanding usage; the word seamlessly blends into the sentence, showcasing a profound understanding of its context.
-8-9: Excellent usage; the word harmonizes well with the sentence, with only minor room for enhancement.
-6-7: Good usage; the word is generally fitting, but there might be some potential for clarification or improvement.
-4-5: Adequate usage; the word is used, but there are notable issues with context, grammar, or appropriateness.
-2-3: Insufficient usage; there are significant problems with how the word is integrated into the sentence.
-0-1: Poor usage; the word is either entirely out of place or used in a confusing or incorrect manner.
+Examples:
 
+Score 0: The use of "{word}" is entirely inappropriate, violating fundamental language rules and hindering comprehension.
+Score 1: Incoherent use of "{word}" disrupts the sentence structure, leading to confusion or lack of clarity.
+Score 4: "{word}" is used, but there are notable issues in grammar and appropriateness, impacting the overall effectiveness.
+Score 7: The use of "{word}" aligns with basic language rules but may have minor issues such as ambiguous context or suboptimal placement.
+Score 10: "{word}" is seamlessly integrated, showcasing a deep understanding of language rules, enhancing clarity, and contributing significantly to the message's quality.
 """
 
 """
@@ -112,5 +158,5 @@ score_prompt = PromptTemplate(
 score_chain = score_prompt | model | parser
 """
 
-score_prompt = ChatPromptTemplate.from_template(score_prompt_template)
-score_chain = score_prompt | model | StrOutputParser()
+# score_prompt = ChatPromptTemplate.from_template(score_prompt_template)
+score_chain = few_shot_prompt | model | StrOutputParser()
