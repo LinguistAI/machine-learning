@@ -5,7 +5,6 @@ from LinguistML import settings
 
 from LinguistML.views.ping import ping
 from django.views.static import serve 
-from rest_framework_swagger.views import get_swagger_view
 
 import environ
 
