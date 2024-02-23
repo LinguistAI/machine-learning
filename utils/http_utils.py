@@ -17,3 +17,19 @@ def generate_error_response(status_code: int, message: str, data: dict = None):
         custom_response_data["data"] = data
     
     return custom_response_data
+
+
+def generate_success_response(message: str, data: dict = None):
+    """
+    Generate a custom success response
+    """
+    custom_response_data = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "status": 200,
+        "msg": message
+    }
+    
+    if data:
+        custom_response_data["data"] = data
+    
+    return custom_response_data

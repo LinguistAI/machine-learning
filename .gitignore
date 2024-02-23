@@ -4,3 +4,6 @@ django-env
 .env
 .*env
 *.env
+
+static
+static/

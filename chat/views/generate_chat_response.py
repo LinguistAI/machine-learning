@@ -6,18 +6,66 @@ from chat.models import Conversation, Message
 from chat.prompts.chat_prompt import get_chat_prompt
 from profiling.models import Profile
 
-from utils.http_utils import generate_error_response
+from utils.http_utils import generate_error_response, generate_success_response
 from utils.gemini_utils import gemini_model
 from utils.utils import parse_gemini_json
+from drf_yasg.utils import swagger_auto_schema
 import time
 
+from drf_yasg import openapi
+
+@swagger_auto_schema(
+    method='post',
+    operation_description="Generate a response to a chat message",
+    operation_id="Generate a response to a chat message",
+    operation_summary="Generate a response to a chat message",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'message': openapi.Schema(type=openapi.TYPE_STRING, description="User message")
+        }
+    ),
+    responses={
+        "200": openapi.Response(
+            description="Chat response generated successfully",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 200,
+                    "msg": "Chat response generated successfully",
+                    "data": "Bot response here..."
+                }
+            }
+        ),
+        "400": openapi.Response(
+            description="Bad request",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 400,
+                    "msg": "Authentication is required"
+                }
+            }
+        ),
+        "400": openapi.Response(
+            description="Bad request",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 400,
+                    "msg": "Message is required"
+                }
+            }
+        )
+    }
+)
 @api_view(['POST'])
 def generate_chat_response(request):
     
     # Check the request header for email
     email = request.headers.get("email")
     if not email:
-        return generate_error_response(400, "Email is required")
+        return generate_error_response(400, "Authentication is required")
     
     # Check the request body for message
     message = request.data.get("message")
@@ -45,10 +93,4 @@ def generate_chat_response(request):
 
     data = parse_gemini_json(response.text)
     
-    prompt_response_dict = {
-        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "status": 200,
-        "msg": "Success",
-        "data": data
-    }
-    return Response(prompt_response_dict, status=200)
+    return generate_success_response("Chat response generated successfully", data)
