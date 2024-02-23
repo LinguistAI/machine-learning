@@ -32,8 +32,7 @@ def custom_404_view(request, exception):
     data = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "status": 404,
-        "msg": "Not Found",
-        "detail": "The requested resource was not found."
+        "msg": "Requested resource was not found",
     }
     return JsonResponse(data, status=404)
 
@@ -42,8 +41,7 @@ def custom_500_view(request):
     data = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "status": 500,
-        "msg": "Server Error",
-        "detail": "Internal server error."
+        "msg": "Internal server error",
     }
     return JsonResponse(data, status=500)
 
