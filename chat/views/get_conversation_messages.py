@@ -6,13 +6,14 @@ from chat.serializers import MessageSerializer
 from utils.http_utils import generate_error_response
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+from constants.profile_constants import MAX_NO_OF_MESSAGE_CONTEXT
 # Create Django Rest Endpoint that returns a list of messages for a given conversation
 
 @swagger_auto_schema(
     method='get',
-    operation_description="Get last five messages from current user's conversation",
-    operation_id="Get last five messages from current user's conversation",
-    operation_summary="Get last five messages from current user's conversation",
+    operation_description=f"Get last {MAX_NO_OF_MESSAGE_CONTEXT} messages from current user's conversation",
+    operation_id=f"Get last {MAX_NO_OF_MESSAGE_CONTEXT} messages from current user's conversation",
+    operation_summary=f"Get last {MAX_NO_OF_MESSAGE_CONTEXT} messages from current user's conversation",
     responses={
         "200": openapi.Response(
             description="Messages retrieved successfully",
@@ -48,7 +49,7 @@ def get_last_conversation_messages(request):
     conversation = Conversation.objects.filter(user_email=email).first()
     
     # Now get the last five messages from the conversation
-    previous_messages = Message.objects.filter(conversation=conversation).order_by('-timestamp')[:5]
+    previous_messages = Message.objects.filter(conversation=conversation).order_by('-timestamp')[:MAX_NO_OF_MESSAGE_CONTEXT]
     
     serializer = MessageSerializer(previous_messages, many=True)
     

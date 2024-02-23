@@ -12,3 +12,6 @@ class Message(models.Model):
     updated_date = models.DateTimeField(auto_now=True)
     message_text = models.TextField()
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
+    
+    def __str__(self):
+        return f"{self.sender_type}: {self.message_text}"

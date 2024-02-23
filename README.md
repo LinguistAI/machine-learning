@@ -48,6 +48,12 @@ In order to generate the database:
 python manage.py migrate
 ```
 
+If there are any changes in the models, you can create a new migration:
+
+```bash
+python manage.py makemigrations
+```
+
 Later on, you can also create a superuser, but this is not supported now:
 
 ```bash

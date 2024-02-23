@@ -7,6 +7,7 @@ def generate_error_response(status_code: int, message: str, data: dict = None):
     """
     Generate a custom error response
     """
+    
     custom_response_data = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "status": status_code,
@@ -16,10 +17,10 @@ def generate_error_response(status_code: int, message: str, data: dict = None):
     if data:
         custom_response_data["data"] = data
     
-    return custom_response_data
+    return Response(custom_response_data, status=status_code)
 
 
-def generate_success_response(message: str, data: dict = None):
+def generate_success_response(message: str, data: dict):
     """
     Generate a custom success response
     """
@@ -29,7 +30,9 @@ def generate_success_response(message: str, data: dict = None):
         "msg": message
     }
     
+    print(data)
+    
     if data:
         custom_response_data["data"] = data
     
-    return custom_response_data
+    return Response(custom_response_data, status=200)

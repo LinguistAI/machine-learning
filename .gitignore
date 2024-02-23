@@ -7,3 +7,6 @@ django-env
 
 static
 static/
+
+migrations/*
+migrations
