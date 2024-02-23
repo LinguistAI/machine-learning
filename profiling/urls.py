@@ -17,26 +17,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 
-from LinguistML.views import ping
-import environ
-
-
-env = environ.Env()
-environ.Env.read_env()
-
-BASE_URL_PREFIX = env("BASE_URL_PREFIX", default="api/v1")
-
-
-
 urlpatterns = [
-    path(f"{BASE_URL_PREFIX}/ping", ping),
-    path(f'{BASE_URL_PREFIX}/admin/', admin.site.urls, name="admin")    ,
-    path(f'{BASE_URL_PREFIX}/chat/', include('chat.urls'), name="chat"),
-    path(f'{BASE_URL_PREFIX}/profile/', include('profiling.urls'), name="profiling"),
+    path('/', admin.site.urls),
 ]
-
-
-# Custom Error Pages
-
-handler404 = 'LinguistML.exception_handlers.custom_404_view'
-handler500 = 'LinguistML.exception_handlers.custom_500_view'

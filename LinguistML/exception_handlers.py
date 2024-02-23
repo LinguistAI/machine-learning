@@ -1,7 +1,7 @@
 # your_app/exception_handlers.py
 
 from rest_framework.views import exception_handler
-from rest_framework.response import Response
+from django.http import JsonResponse
 from datetime import datetime
 
 def custom_exception_handler(exc, context):
@@ -25,3 +25,27 @@ def custom_exception_handler(exc, context):
         response.data = custom_response_data
 
     return response
+
+
+def custom_404_view(request, exception):
+    print("custom_404_view")
+    data = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "status": 404,
+        "msg": "Not Found",
+        "detail": "The requested resource was not found."
+    }
+    return JsonResponse(data, status=404)
+
+def custom_500_view(request):
+    print("custom_500_view")
+    data = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "status": 500,
+        "msg": "Server Error",
+        "detail": "Internal server error."
+    }
+    return JsonResponse(data, status=500)
+
+
+
