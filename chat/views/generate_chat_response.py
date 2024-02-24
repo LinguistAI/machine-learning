@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from datetime import datetime
 from chat.models import Conversation, Message
 from chat.prompts.chat_prompt import get_chat_prompt
+from constants.header_constants import HEADER_USER_EMAIL
 from profiling.models import Profile
 from profiling.tasks.update_profile import update_profile_async
 
@@ -66,10 +67,10 @@ from drf_yasg import openapi
 def generate_chat_response(request):
     
     # Check the request header for email
-    if not request.headers or "email" not in request.headers:
+    if not request.headers or HEADER_USER_EMAIL not in request.headers:
         return generate_error_response(400, "Authentication is required")
     
-    email = request.headers.get("email", None)
+    email = request.headers.get(HEADER_USER_EMAIL, None)
     if not email:
         return generate_error_response(400, "Authentication is required")
     

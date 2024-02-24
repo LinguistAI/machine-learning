@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from chat.models import Conversation, Message
 from chat.serializers import MessageSerializer
+from constants.header_constants import HEADER_USER_EMAIL
 
 from utils.http_utils import generate_error_response
 from drf_yasg import openapi
@@ -41,7 +42,10 @@ from constants.profile_constants import MAX_NO_OF_MESSAGE_CONTEXT
 @api_view(['GET'])
 def get_last_conversation_messages(request):
     # Check the request header for email
-    email = request.headers.get("email")
+    if not request.headers or HEADER_USER_EMAIL not in request.headers:
+        return generate_error_response(400, "Authentication is required")
+    
+    email = request.headers.get(HEADER_USER_EMAIL)
     if not email:
         return generate_error_response(400, "Authentication is required")
     
