@@ -1,12 +1,12 @@
-.pth
-.h5
-.gguf
-.env
-*.env
-*.env*
+django-env/*
+django-env
 
-__pycache__/*
-__pycache__
-*.gguf
-.gguf
-models/*
+.env
+.*env
+*.env
+
+static
+static/
+
+migrations/*
+migrations
