@@ -52,7 +52,7 @@ def get_all_conversation_messages(request):
     conversation = Conversation.objects.filter(user_email=email).first()
     
     # Now get the last five messages from the conversation
-    previous_messages = Message.objects.filter(conversation=conversation).order_by('-timestamp')
+    previous_messages = Message.objects.filter(conversation=conversation).order_by('-created_date')
     
     serializer = MessageSerializer(previous_messages, many=True)
     

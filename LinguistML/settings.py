@@ -57,7 +57,10 @@ INSTALLED_APPS = [
 ]
 
 SWAGGER_SETTINGS = {
-    "DEFAULT_MODEL_RENDERING": "example"
+    "DEFAULT_MODEL_RENDERING": "example",
+    "USE_SESSION_AUTH": False,
+    "DEFAULT_API_URL": "https://linguistai.app",
+    "BASE_PATH": env("BASE_URL_PREFIX"),
 }
 
 REST_FRAMEWORK = {
