@@ -75,6 +75,10 @@ def generate_chat_response(request):
         return generate_error_response(400, "Authentication is required")
     
     # Check the request body for message
+    if not request.data or "message" not in request.data:
+        return generate_error_response(400, "Message is required")
+    
+    # Check the request body for message
     message = request.data.get("message")
     if not message:
         return generate_error_response(400, "Message is required")

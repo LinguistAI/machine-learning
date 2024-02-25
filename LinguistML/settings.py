@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     # Internal apps
     'chat',
     'profiling',
-    'scoring'
+    'scoring',
+    'mcq',
 ]
 
 SWAGGER_SETTINGS = {
