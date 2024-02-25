@@ -25,4 +25,4 @@ from utils.http_utils import generate_success_response
 )
 @api_view(['GET'])
 def ping(request):
-    return generate_success_response("Server is up")
+    return generate_success_response("Server is up", "Server is up")
