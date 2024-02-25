@@ -12,9 +12,11 @@ from constants.profile_constants import MAX_NO_OF_MESSAGE_CONTEXT
 
 @swagger_auto_schema(
     method='get',
+    
     operation_description=f"Get last {MAX_NO_OF_MESSAGE_CONTEXT} messages from current user's conversation",
     operation_id=f"Get last {MAX_NO_OF_MESSAGE_CONTEXT} messages from current user's conversation",
     operation_summary=f"Get last {MAX_NO_OF_MESSAGE_CONTEXT} messages from current user's conversation",
+    
     responses={
         "200": openapi.Response(
             description="Messages retrieved successfully",
@@ -37,10 +39,10 @@ from constants.profile_constants import MAX_NO_OF_MESSAGE_CONTEXT
                 }
             }
         )
-    }
+    },
 )
 @api_view(['GET'])
-def get_last_conversation_messages(request):
+def get_last_conversation_messages(request, conversation_id: str):
     # Check the request header for email
     if not request.headers or HEADER_USER_EMAIL not in request.headers:
         return generate_error_response(400, "Authentication is required")
@@ -49,8 +51,11 @@ def get_last_conversation_messages(request):
     if not email:
         return generate_error_response(400, "Authentication is required")
     
-    # Get the conversation id that matches the email
-    conversation = Conversation.objects.filter(user_email=email).first()
+    if not conversation_id:
+        return generate_error_response(400, "Conversation ID is required")
+    
+    # Get the conversation id that matches the id
+    conversation = Conversation.objects.filter(id=conversation_id).first()
     
     # Now get the last five messages from the conversation
     previous_messages = Message.objects.filter(conversation=conversation).order_by('-timestamp')[:MAX_NO_OF_MESSAGE_CONTEXT]

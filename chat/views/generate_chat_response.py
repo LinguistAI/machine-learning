@@ -29,6 +29,16 @@ from drf_yasg import openapi
             'message': openapi.Schema(type=openapi.TYPE_STRING, description="User message")
         }
     ),
+    # ADd url parameter
+    
+    manual_parameters=[
+        openapi.Parameter(
+            name='conversation_id', in_=openapi.IN_PATH,
+            description='Unique identifier for the chat session',
+            type=openapi.TYPE_STRING,
+            required=True
+        )
+    ],
     responses={
         "200": openapi.Response(
             description="Chat response generated successfully",
@@ -64,7 +74,7 @@ from drf_yasg import openapi
     }
 )
 @api_view(['POST'])
-def generate_chat_response(request):
+def generate_chat_response(request, conversation_id: str):
     
     # Check the request header for email
     if not request.headers or HEADER_USER_EMAIL not in request.headers:
@@ -83,24 +93,23 @@ def generate_chat_response(request):
     if not message:
         return generate_error_response(400, "Message is required")
     
+    if not conversation_id:
+        return generate_error_response(400, "Conversation ID is required")
+    
     print(f"User message: {message}")
     
-    
     # Get the conversation id that matches the email if exists
-    conversation_exists = Conversation.objects.filter(user_email=email).exists()
+    conversation_exists = Conversation.objects.filter(id=conversation_id).exists()
     
     print(f"Conversation exists: {conversation_exists}")
         
     # Now get the last five messages from the conversations
-    if conversation_exists:
-        conversation = Conversation.objects.filter(user_email=email).first()
-        message_count = Message.objects.filter(conversation=conversation).count()
-        previous_messages = Message.objects.filter(conversation=conversation).order_by('-created_date')[:MAX_NO_OF_MESSAGE_CONTEXT]
-    else:
-        conversation = Conversation.objects.create(user_email=email)
-        message_count = 0
-        conversation.save()
-        previous_messages = []
+    if not conversation_exists:
+        return generate_error_response(400, "Conversation does not exist")
+    
+    conversation = Conversation.objects.filter(user_email=email).first()
+    message_count = Message.objects.filter(conversation=conversation).count()
+    previous_messages = Message.objects.filter(conversation=conversation).order_by('+created_date')[:MAX_NO_OF_MESSAGE_CONTEXT]
     
     # Get user profile if exists
     profile_exists = Profile.objects.filter(email=email).exists()

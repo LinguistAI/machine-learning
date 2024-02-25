@@ -43,7 +43,7 @@ urlpatterns = [
     
     # Other apps
     path(f'{BASE_URL_PREFIX}/admin/', admin.site.urls, name="admin"),
-    path(f'{BASE_URL_PREFIX}/chat/', include('chat.urls'), name="chat"),
+    path(f'{BASE_URL_PREFIX}/conversation/', include('chat.urls'), name="chat"),
     path(f'{BASE_URL_PREFIX}/mcq/', include('mcq.urls'), name="mcq"),
     # path(f'{BASE_URL_PREFIX}/profile/', include('profiling.urls'), name="profiling"),
     
