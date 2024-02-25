@@ -1,7 +1,8 @@
 
-from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
+
+from profiling.views.get_user_profile import get_user_profile
 
 urlpatterns = [
-    path('/', ""),
+    path('user', get_user_profile),
 ]

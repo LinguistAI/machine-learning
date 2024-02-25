@@ -155,6 +155,8 @@ USE_TZ = True
 STATIC_URL = env("BASE_URL_PREFIX") + '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
+
+
 MEDIA_ROOT = 'media'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'

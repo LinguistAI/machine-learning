@@ -30,6 +30,10 @@ python manage.py migrate
 timestamp
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
+
+timestamp
+echo "Creating superuser..."
+python manage.py createsuperuser --noinput
 # Start your Django app
 
 timestamp

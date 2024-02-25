@@ -123,7 +123,10 @@ def generate_chat_response(request, conversation_id: str):
     previous_messages_str = [str(message) for message in previous_messages]
     previous_messages_str = "\n".join(previous_messages_str)
     
-    chat_prompt = get_chat_prompt(previous_messages_str, profile, message)
+    conversation_bot = conversation.bot
+    bot_profile = conversation_bot.prompt
+    
+    chat_prompt = get_chat_prompt(bot_profile, previous_messages_str, profile, message)
     
     print(chat_prompt)
     

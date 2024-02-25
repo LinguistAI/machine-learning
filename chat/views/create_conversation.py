@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from datetime import datetime
-from chat.models import Conversation, Message
+from chat.models import ChatBot, Conversation, Message
 from chat.prompts.chat_prompt import get_chat_prompt
 from chat.serializers import ConversationSerializer
 from constants.header_constants import HEADER_USER_EMAIL
@@ -24,6 +24,12 @@ from drf_yasg import openapi
     operation_description="Create a conversation",
     operation_id="Create a conversation",
     operation_summary="Create a conversation",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'bot_id': openapi.Schema(type=openapi.TYPE_STRING, description="Bot ID")
+        }
+    ),
     responses={
         "200": openapi.Response(
             description="Conversation generated successfully",
@@ -58,8 +64,19 @@ def create_conversation(request):
     email = request.headers.get(HEADER_USER_EMAIL, None)
     if not email:
         return generate_error_response(400, "Authentication is required")
+        
+    if not request.data or "bot_id" not in request.data:
+        return generate_error_response(400, "Bot selection is required")
+        
+    bot_id = request.data.get("bot_id")
+    if not bot_id:
+        return generate_error_response(400, "Bot selection is required")
     
-    conversation = Conversation.objects.create(user_email=email)
+    bot = ChatBot.objects.filter(id=bot_id).first()
+     
+    title = bot.name
+    
+    conversation = Conversation.objects.create(user_email=email, bot=bot, title=title)
     serializer = ConversationSerializer(conversation)
     
     return generate_success_response("Conversation created successfully", serializer.data)
