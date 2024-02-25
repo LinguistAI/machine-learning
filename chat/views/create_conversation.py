@@ -1,3 +1,4 @@
+from django.http import HttpRequest
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -55,7 +56,7 @@ from drf_yasg import openapi
     }
 )            
 @api_view(['POST'])
-def create_conversation(request):
+def create_conversation(request: HttpRequest):
     
     # Check the request header for email
     if not request.headers or HEADER_USER_EMAIL not in request.headers:
@@ -71,6 +72,11 @@ def create_conversation(request):
     bot_id = request.data.get("bot_id")
     if not bot_id:
         return generate_error_response(400, "Bot selection is required")
+    
+    user_conversations_exists = Conversation.objects.filter(user_email=email, bot_id=bot_id).exists()
+    
+    if user_conversations_exists:
+        return generate_error_response(400, "A conversation already exists with this bot")
     
     bot = ChatBot.objects.filter(id=bot_id).first()
      

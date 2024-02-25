@@ -41,15 +41,13 @@ class Message(models.Model):
         return f"{self.sender_type}: {self.message_text}"
     
 
-
-chatbot_example = {
+chatbot_output_example = {
     "id": "123e4567-e89b-12d3-a456-426614174000",
     "created_date": "2021-08-30 14:00:00",
     "updated_date": "2021-08-30 14:00:00",
     "name": "Test Chatbot",
     "description": "This is a test chatbot",
     "profile_image": "test_image.png",
-    "prompt": "You are Sir Arthur Conan Doyle. You are a famous author and physician. You are best known for your detective fiction featuring the character Sherlock Holmes.",
     "voice_characteristics": "British",
     "difficulty_level": 10,
 }
