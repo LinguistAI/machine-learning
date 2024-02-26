@@ -2,12 +2,6 @@
 
 from chat.models import ChatBot, Conversation, Message
 from rest_framework import serializers
-
-
-class ConversationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Conversation
-        fields = '__all__'
         
         
 class MessageSerializer(serializers.ModelSerializer):
@@ -21,3 +15,11 @@ class ChatBotSerializer(serializers.ModelSerializer):
         model = ChatBot
         fields = ['id', 'createdDate', 'updatedDate', 'name', 'description', 'profileImage', 'voiceCharacteristics', 'difficultyLevel']
         
+
+
+class ConversationSerializer(serializers.ModelSerializer):
+    bot = ChatBotSerializer(read_only=True)  # Use the ChatBotSerializer for the 'bot' field
+
+    class Meta:
+        model = Conversation
+        fields = '__all__'

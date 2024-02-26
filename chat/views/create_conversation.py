@@ -20,6 +20,8 @@ from concurrent.futures import ThreadPoolExecutor
 
 from drf_yasg import openapi
 
+from utils.utils import is_valid_uuid
+
 @swagger_auto_schema(
     method='post',
     operation_description="Create a conversation",
@@ -73,10 +75,18 @@ def create_conversation(request: HttpRequest):
     if not bot_id:
         return generate_error_response(400, "Bot selection is required")
     
-    bot = ChatBot.objects.filter(id=bot_id).first()
+    # Check if bot_id is valid uuid4
+    is_valid_uuid4 = is_valid_uuid(bot_id, version=4)
     
-    if not bot:
+    if not is_valid_uuid4:
+        return generate_error_response(400, "Invalid bot ID")
+    
+    bot_exists = ChatBot.objects.filter(id=bot_id).exists()
+    
+    if not bot_exists:
         return generate_error_response(400, "Bot not found")
+    
+    bot = ChatBot.objects.filter(id=bot_id).first()
     
     user_conversations_exists = Conversation.objects.filter(userEmail=email, bot=bot).exists()
     
