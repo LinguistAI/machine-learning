@@ -19,5 +19,5 @@ class MessageSerializer(serializers.ModelSerializer):
 class ChatBotSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChatBot
-        fields = ['id', 'created_date', 'updated_date', 'name', 'description', 'profile_image', 'voice_characteristics', 'difficulty_level']
+        fields = ['id', 'createdDate', 'updatedDate', 'name', 'description', 'profileImage', 'voiceCharacteristics', 'difficultyLevel']
         

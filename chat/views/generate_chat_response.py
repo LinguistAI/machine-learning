@@ -109,7 +109,7 @@ def generate_chat_response(request, conversation_id: str):
     
     conversation = Conversation.objects.filter(user_email=email).first()
     message_count = Message.objects.filter(conversation=conversation).count()
-    previous_messages = Message.objects.filter(conversation=conversation).order_by('+created_date')[:MAX_NO_OF_MESSAGE_CONTEXT]
+    previous_messages = Message.objects.filter(conversation=conversation).order_by('+createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
     
     # Get user profile if exists
     profile_exists = Profile.objects.filter(email=email).exists()
