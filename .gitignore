@@ -8,8 +8,11 @@ django-env
 static
 static/
 
-migrations/*
-migrations
+# Ignore all Python migration files in any migrations folder
+*/migrations/*.py
+# But do not ignore the __init__.py file to ensure the migrations directory is treated as a Python package
+!*/migrations/__init__.py
+
 
 __pycache__/*
 __pycache__
