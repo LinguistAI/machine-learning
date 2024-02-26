@@ -4,23 +4,23 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class ChatBot(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_date = models.DateTimeField(auto_now_add=True)
-    updated_date = models.DateTimeField(auto_now=True)
+    createdDate = models.DateTimeField(auto_now_add=True)
+    updatedDate = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=255)
     description = models.TextField()
-    profile_image = models.TextField()
+    profileImage = models.TextField()
     prompt = models.TextField()
-    voice_characteristics = models.TextField()
-    difficulty_level = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
+    voiceCharacteristics = models.TextField()
+    difficultyLevel = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
     
     def __str__(self):
         return "ChatBot: " + self.name
 
 class Conversation(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_date = models.DateTimeField(auto_now_add=True)
-    updated_date = models.DateTimeField(auto_now=True)
-    user_email = models.CharField(max_length=255)
+    createdDate = models.DateTimeField(auto_now_add=True)
+    updatedDate = models.DateTimeField(auto_now=True)
+    userEmail = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     bot = models.ForeignKey(ChatBot, on_delete=models.CASCADE, related_name='conversations')
     
@@ -30,15 +30,15 @@ class Conversation(models.Model):
 
 class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    sender_email = models.CharField(max_length=255)
-    sender_type = models.CharField(max_length=10)
-    created_date = models.DateTimeField(auto_now_add=True)
-    updated_date = models.DateTimeField(auto_now=True)
-    message_text = models.TextField()
+    senderEmail = models.CharField(max_length=255)
+    senderType = models.CharField(max_length=10)
+    createdDate = models.DateTimeField(auto_now_add=True)
+    updatedDate = models.DateTimeField(auto_now=True)
+    messageText = models.TextField()
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='messages')
     
     def __str__(self):
-        return f"{self.sender_type}: {self.message_text}"
+        return f"{self.senderType}: {self.messageText}"
     
 
 chatbot_output_example = {

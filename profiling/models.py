@@ -3,21 +3,21 @@ from django.db import models
 
 class Profile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    created_date = models.DateTimeField(auto_now_add=True)
-    updated_date = models.DateTimeField(auto_now=True)
+    createdDate = models.DateTimeField(auto_now_add=True)
+    updatedDate = models.DateTimeField(auto_now=True)
     likes = models.TextField(null=True)
     loves = models.TextField(null=True)
     dislikes = models.TextField(null=True)
     hates = models.TextField(null=True)
-    profile_info = models.TextField(null=True)
+    profileInfo = models.TextField(null=True)
     email = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
         
         output_format = ""
         
-        if self.profile_info:
-            output_format += f"Profile Info: {self.profile_info}\n"
+        if self.profileInfo:
+            output_format += f"Profile Info: {self.profileInfo}\n"
             
         if self.likes:
             output_format += f"Likes: {self.likes}\n"

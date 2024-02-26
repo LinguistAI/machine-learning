@@ -30,7 +30,7 @@ def update_profile_async(profile: Profile, last_messages: str, last_message: str
     profile.dislikes = data['dislikes']
     profile.loves = data['loves']
     profile.hates = data['hates']
-    profile.profile_info = data['profile-info']
+    profile.profileInfo = data['profile-info']
     
     profile.save()
     
