@@ -107,7 +107,7 @@ def generate_chat_response(request, conversation_id: str):
     if not conversation_exists:
         return generate_error_response(400, "Conversation does not exist")
     
-    conversation = Conversation.objects.filter(user_email=email).first()
+    conversation = Conversation.objects.filter(userEmail=email).first()
     message_count = Message.objects.filter(conversation=conversation).count()
     previous_messages = Message.objects.filter(conversation=conversation).order_by('+createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
     
@@ -143,10 +143,10 @@ def generate_chat_response(request, conversation_id: str):
     data = response.text
 
     # Add message to conversation
-    user_message = Message.objects.create(conversation=conversation, message_text=message, sender_email=email, sender_type="user")
+    user_message = Message.objects.create(conversation=conversation, messageText=message, senderEmail=email, senderType="user")
     user_message.save()
     
-    bot_message = Message.objects.create(conversation=conversation, message_text=data, sender_email="bot", sender_type="bot")
+    bot_message = Message.objects.create(conversation=conversation, messageText=data, senderEmail="bot", senderType="bot")
     bot_message.save()
     
     # async call to update profile

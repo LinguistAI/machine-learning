@@ -50,7 +50,7 @@ def get_user_conversations(request):
         return generate_error_response(400, "Authentication is required")
     
     # Get all conversations for the user
-    conversations = Conversation.objects.filter(user_email=email)
+    conversations = Conversation.objects.filter(userEmail=email)
     
     serializer = ConversationSerializer(conversations, many=True)
     

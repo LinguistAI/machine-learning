@@ -73,7 +73,12 @@ def create_conversation(request: HttpRequest):
     if not bot_id:
         return generate_error_response(400, "Bot selection is required")
     
-    user_conversations_exists = Conversation.objects.filter(user_email=email, bot_id=bot_id).exists()
+    bot = ChatBot.objects.filter(id=bot_id).first()
+    
+    if not bot:
+        return generate_error_response(400, "Bot not found")
+    
+    user_conversations_exists = Conversation.objects.filter(userEmail=email, bot=bot).exists()
     
     if user_conversations_exists:
         return generate_error_response(400, "A conversation already exists with this bot")
@@ -82,7 +87,7 @@ def create_conversation(request: HttpRequest):
      
     title = bot.name
     
-    conversation = Conversation.objects.create(user_email=email, bot=bot, title=title)
+    conversation = Conversation.objects.create(userEmail=email, bot=bot, title=title)
     serializer = ConversationSerializer(conversation)
     
     return generate_success_response("Conversation created successfully", serializer.data)
