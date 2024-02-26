@@ -28,7 +28,7 @@ from drf_yasg import openapi
     request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'bot_id': openapi.Schema(type=openapi.TYPE_STRING, description="Bot ID")
+            'botId': openapi.Schema(type=openapi.TYPE_STRING, description="Bot ID")
         }
     ),
     responses={
@@ -66,10 +66,10 @@ def create_conversation(request: HttpRequest):
     if not email:
         return generate_error_response(400, "Authentication is required")
         
-    if not request.data or "bot_id" not in request.data:
+    if not request.data or "botId" not in request.data:
         return generate_error_response(400, "Bot selection is required")
         
-    bot_id = request.data.get("bot_id")
+    bot_id = request.data.get("botId")
     if not bot_id:
         return generate_error_response(400, "Bot selection is required")
     
