@@ -34,7 +34,10 @@ python manage.py collectstatic --noinput
 timestamp
 echo "Creating superuser..."
 python manage.py createsuperuser --noinput
-# Start your Django app
+
+timestamp
+echo "Loading initial data..."
+python manage.py loaddata initial_bots.json
 
 timestamp
 echo "Entry point script executed successfully"
