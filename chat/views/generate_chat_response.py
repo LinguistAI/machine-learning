@@ -127,7 +127,7 @@ def generate_chat_response(request, conversation_id: str):
     bot_profile = conversation_bot.prompt
     bot_difficulty = conversation_bot.difficultyLevel
     
-    chat_prompt = get_chat_prompt(bot_profile, previous_messages_str, profile, message)
+    chat_prompt = get_chat_prompt(bot_profile, bot_difficulty, previous_messages_str, profile, message)
     
     print(chat_prompt)
     
