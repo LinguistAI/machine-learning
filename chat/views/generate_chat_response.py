@@ -107,7 +107,7 @@ def generate_chat_response(request, conversation_id: str):
     if not conversation_exists:
         return generate_error_response(400, "Conversation does not exist")
     
-    conversation = Conversation.objects.filter(userEmail=email).first()
+    conversation = Conversation.objects.filter(id=conversation_id).first()
     message_count = Message.objects.filter(conversation=conversation).count()
     previous_messages = Message.objects.filter(conversation=conversation).order_by('createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
     
