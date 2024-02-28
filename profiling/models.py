@@ -1,5 +1,12 @@
 import uuid
 from django.db import models
+from django.core.validators import MinValueValidator, MaxValueValidator
+
+
+class Hobby(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=255, unique=True)
+
 
 class Profile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -11,6 +18,11 @@ class Profile(models.Model):
     hates = models.TextField(null=True)
     profileInfo = models.TextField(null=True)
     email = models.CharField(max_length=255, unique=True)
+    birthDate = models.DateField(null=True)
+    englishLevel = models.IntegerField(null=True, validators=[MinValueValidator(1)])
+    hobbies = models.ManyToManyField(Hobby, related_name='profiles')
+    name = models.CharField(max_length=255, null=True)
+    
 
     def __str__(self):
         
@@ -30,6 +42,18 @@ class Profile(models.Model):
         
         if self.hates:
             output_format += f"Hates: {self.hates}"
+            
+        if self.birthDate:
+            output_format += f"Birth Date: {self.birthDate}\n"
+        
+        if self.englishLevel:
+            output_format += f"English Level: {self.englishLevel}\n"
+        
+        if self.hobbies:
+            output_format += f"Hobbies: {', '.join([hobby.name for hobby in self.hobbies.all()])}\n"
+            
+        if self.name: 
+            output_format += f"Name: {self.name}\n"
         
         if output_format.strip() == "":
             output_format = "No profile information available"
