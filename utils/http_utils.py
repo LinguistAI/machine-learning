@@ -14,7 +14,7 @@ def generate_error_response(status_code: int, message: str, data: dict = None):
         "msg": message
     }
     
-    if data:
+    if data is not None:
         custom_response_data["data"] = data
     
     return Response(custom_response_data, status=status_code)
@@ -32,7 +32,7 @@ def generate_success_response(message: str, data: dict):
     
     print(data)
     
-    if data:
+    if data is not None:
         custom_response_data["data"] = data
     
     return Response(custom_response_data, status=200)

@@ -65,3 +65,14 @@ In order to run the server:
 ```bash
 python manage.py runserver
 ```
+
+In order to run the tests:
+
+```bash
+pip install pytest-django
+pytest
+```
+or 
+```bash
+python manage.py test
+```
