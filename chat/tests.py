@@ -13,18 +13,24 @@ class GetMessageCountByBotTestCase(TestCase):
         self.bot1 = ChatBot.objects.create(name='Bot 1', difficultyLevel=50)
         self.bot2 = ChatBot.objects.create(name='Bot 2', difficultyLevel=50)
         self.bot3 = ChatBot.objects.create(name='Bot 3', difficultyLevel=50)
-        self.conversation1 = Conversation.objects.create(userEmail='user1@example.com', title='Conversation 1', bot=self.bot1)
-        self.conversation2 = Conversation.objects.create(userEmail='user2@example.com', title='Conversation 2', bot=self.bot2)
+        self.conversation1 = Conversation.objects.create(userEmail='user1@example.com', title='Conversation 1',
+                                                         bot=self.bot1)
+        self.conversation2 = Conversation.objects.create(userEmail='user2@example.com', title='Conversation 2',
+                                                         bot=self.bot2)
         # Create messages for conversation 1
-        Message.objects.create(senderEmail=self.email, senderType='user', messageText='Message 1', conversation=self.conversation1)
-        Message.objects.create(senderEmail=self.email, senderType='bot', messageText='Message 2', conversation=self.conversation1)
+        Message.objects.create(senderEmail=self.email, senderType='user', messageText='Message 1',
+                               conversation=self.conversation1)
+        Message.objects.create(senderEmail=self.email, senderType='bot', messageText='Message 2',
+                               conversation=self.conversation1)
         # Create messages for conversation 2
-        Message.objects.create(senderEmail=self.email, senderType='user', messageText='Message 3', conversation=self.conversation2)
-        Message.objects.create(senderEmail=self.email, senderType='bot', messageText='Message 4', conversation=self.conversation2)
+        Message.objects.create(senderEmail=self.email, senderType='user', messageText='Message 3',
+                               conversation=self.conversation2)
+        Message.objects.create(senderEmail=self.email, senderType='bot', messageText='Message 4',
+                               conversation=self.conversation2)
 
     def test_get_message_count_by_bot(self):
         url = reverse('get_message_count_by_bot') + '?botId=' + str(self.bot1.id)
-        headers = {HEADER_USER_EMAIL:self.email}
+        headers = {HEADER_USER_EMAIL: self.email}
         response = self.client.get(url, headers=headers)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -34,7 +40,7 @@ class GetMessageCountByBotTestCase(TestCase):
 
     def test_get_message_count_by_bot_invalid_bot_id(self):
         url = reverse('get_message_count_by_bot') + '?botId=invalid_bot_id'
-        headers = {HEADER_USER_EMAIL:self.email}
+        headers = {HEADER_USER_EMAIL: self.email}
         response = self.client.get(url, headers=headers)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -45,11 +51,12 @@ class GetMessageCountByBotTestCase(TestCase):
 
     def test_get_message_count_by_bot_no_messages(self):
         url = reverse('get_message_count_by_bot') + '?botId=' + str(self.bot3.id)
-        headers = {HEADER_USER_EMAIL:self.email}
+        headers = {HEADER_USER_EMAIL: self.email}
         response = self.client.get(url, headers=headers)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data["data"]), 0)  # No bots, as there are no messages
+
 
 class GetMessageCountAggregateTestCase(TestCase):
     def setUp(self):
@@ -57,17 +64,22 @@ class GetMessageCountAggregateTestCase(TestCase):
         self.email = "test@test.com"
         self.bot1 = ChatBot.objects.create(name='Bot 1', difficultyLevel=50)
         self.bot2 = ChatBot.objects.create(name='Bot 2', difficultyLevel=50)
-        self.conversation1 = Conversation.objects.create(userEmail='user1@example.com', title='Conversation 1', bot=self.bot1)
-        self.conversation2 = Conversation.objects.create(userEmail='user2@example.com', title='Conversation 2', bot=self.bot2)
+        self.conversation1 = Conversation.objects.create(userEmail='user1@example.com', title='Conversation 1',
+                                                         bot=self.bot1)
+        self.conversation2 = Conversation.objects.create(userEmail='user2@example.com', title='Conversation 2',
+                                                         bot=self.bot2)
         # Create messages for conversation 1
-        Message.objects.create(senderEmail=self.email, senderType='user', messageText='Message 1', conversation=self.conversation1)
-        Message.objects.create(senderEmail=self.email, senderType='user', messageText='Message 2', conversation=self.conversation1)
+        Message.objects.create(senderEmail=self.email, senderType='user', messageText='Message 1',
+                               conversation=self.conversation1)
+        Message.objects.create(senderEmail=self.email, senderType='user', messageText='Message 2',
+                               conversation=self.conversation1)
         # Create messages for conversation 2
-        Message.objects.create(senderEmail=self.email, senderType='user', messageText='Message 3', conversation=self.conversation2)
+        Message.objects.create(senderEmail=self.email, senderType='user', messageText='Message 3',
+                               conversation=self.conversation2)
 
     def test_get_message_count_aggregate(self):
         url = reverse('get_message_count_aggregate')
-        headers = {HEADER_USER_EMAIL:self.email}
+        headers = {HEADER_USER_EMAIL: self.email}
         response = self.client.get(url, headers=headers)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -84,7 +96,7 @@ class GetMessageCountAggregateTestCase(TestCase):
 
     def test_get_message_count_aggregate_sort_asc(self):
         url = reverse('get_message_count_aggregate') + '?sort=asc'
-        headers = {HEADER_USER_EMAIL:self.email}
+        headers = {HEADER_USER_EMAIL: self.email}
         response = self.client.get(url, headers=headers)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["data"][0]['botId'], self.bot2.id)  # Bot 2's ID
@@ -92,7 +104,7 @@ class GetMessageCountAggregateTestCase(TestCase):
 
     def test_get_message_count_aggregate_invalid_days_limit(self):
         url = reverse('get_message_count_aggregate') + '?daysLimit=invalid'
-        headers = {HEADER_USER_EMAIL:self.email}
+        headers = {HEADER_USER_EMAIL: self.email}
         response = self.client.get(url, headers=headers)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 

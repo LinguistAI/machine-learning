@@ -10,6 +10,7 @@ from django.db.models import Count
 from django.db.models import F
 import uuid
 
+
 @swagger_auto_schema(
     method='get',
     operation_description="Get message counts sent to a bot over time",
@@ -62,7 +63,6 @@ import uuid
         )
     }
 )
-
 @api_view(['GET'])
 def get_message_count_by_bot(request):
     # Check the request header for email

@@ -73,12 +73,9 @@ def get_message_count_aggregate(request):
     if num_days is not None:
         try:
             num_days = int(num_days)
+            start_date = date.today() - timedelta(days=num_days)
         except ValueError:
             return generate_error_response(400, "Invalid value for 'num_days'. Must be an integer.")
-
-    # Calculate the start date based on num_days
-    if num_days is not None:
-        start_date = date.today() - timedelta(days=num_days)
     else:
         start_date = None  # No date filtering
 
