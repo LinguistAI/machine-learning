@@ -33,13 +33,21 @@ from django.db.models import F
     ],
     responses={
         "200": openapi.Response(
-            description="Messages retrieved successfully",
+            description="Message counts retrieved successfully",
             examples={
                 "application/json": {
                     "timestamp": "2021-08-30 14:00:00",
                     "status": 200,
-                    "msg": "Messages retrieved successfully",
-                    "data": []
+                    "msg": "Aggregate message counts:",
+                    "data": [{
+                                "botId": "37ed45c3-e029-4769-b5de-03ded8a5abdf",
+                                "messageCountByBot": 4
+                            },
+                            {
+                                "botId": "a8f5f167-b9a3-4674-8b43-5ed23edce65e",
+                                "messageCountByBot": 2
+                            }
+                    ]
                 }
             }
         ),

@@ -69,7 +69,6 @@ python manage.py runserver
 In order to run the tests:
 
 ```bash
-pip install pytest-django
 pytest
 ```
 or 

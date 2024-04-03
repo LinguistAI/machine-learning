@@ -41,13 +41,23 @@ import uuid
     ],
     responses={
         "200": openapi.Response(
-            description="Messages retrieved successfully",
+            description="Message counts retrieved successfully",
             examples={
                 "application/json": {
                     "timestamp": "2021-08-30 14:00:00",
                     "status": 200,
-                    "msg": "Messages retrieved successfully",
-                    "data": []
+                    "msg": "Message counts over time:",
+                    "data": [{
+                                "date": "2024-02-28",
+                                "botId": "37ed45c3-e029-4769-b5de-03ded8a5abdf",
+                                "messageCount": 1
+                            },
+                            {
+                                "date": "2024-03-13",
+                                "botId": "37ed45c3-e029-4769-b5de-03ded8a5abdf",
+                                "messageCount": 3
+                            }
+                    ]
                 }
             }
         ),
