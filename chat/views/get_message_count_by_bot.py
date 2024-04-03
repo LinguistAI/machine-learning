@@ -49,12 +49,12 @@ import uuid
                     "msg": "Message counts over time:",
                     "data": [{
                                 "date": "2024-02-28",
-                                "botId": "37ed45c3-e029-4769-b5de-03ded8a5abdf",
+                                "botId": "given bot's id",
                                 "messageCount": 1
                             },
                             {
                                 "date": "2024-03-13",
-                                "botId": "37ed45c3-e029-4769-b5de-03ded8a5abdf",
+                                "botId": "given bot's id",
                                 "messageCount": 3
                             }
                     ]
