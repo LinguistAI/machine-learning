@@ -1,8 +1,9 @@
 from datetime import timedelta, date
 
 from rest_framework.decorators import api_view
-from chat.models import Message
+from chat.models import Message, ChatBot
 from constants.header_constants import HEADER_USER_EMAIL
+from constants.parameter_constants import ASCENDING_ORDER, DESCENDING_ORDER
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -13,9 +14,9 @@ import uuid
 
 @swagger_auto_schema(
     method='get',
-    operation_description="Get message counts sent to a bot over time",
-    operation_id="GetMessageCountAggregateByBot",
-    operation_summary="Get message counts sent to a bot over time",
+    operation_description="Get message counts sent over time, either to a bot or to all bots",
+    operation_id="GetMessageCountOverTime",
+    operation_summary="Get message counts sent over time, either to a bot or to all bots",
     manual_parameters=[
         openapi.Parameter(
             name='sort',
@@ -35,8 +36,8 @@ import uuid
             name='botId',
             in_=openapi.IN_QUERY,
             type=openapi.TYPE_STRING,
-            description='ID of the bot to filter messages by (required)',
-            required=True
+            description='ID of the bot to filter messages by',
+            required=False
         ),
     ],
     responses={
@@ -49,12 +50,10 @@ import uuid
                     "msg": "Message counts over time:",
                     "data": [{
                                 "date": "2024-02-28",
-                                "botId": "given bot's id",
                                 "messageCount": 1
                             },
                             {
                                 "date": "2024-03-13",
-                                "botId": "given bot's id",
                                 "messageCount": 3
                             }
                     ]
@@ -68,13 +67,23 @@ import uuid
                     "timestamp": "2021-08-30 14:00:00",
                     "status": 400,
                     "msg": "Authentication is required"
-                }
+                },
+            }
+        ),
+        "404": openapi.Response(
+            description="Bot with the given id is not found",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 404,
+                    "msg": "Bot not found"
+                },
             }
         )
     }
 )
 @api_view(['GET'])
-def get_message_count_by_bot(request):
+def get_message_count_by_date(request):
     # Check the request header for email
     if not request.headers or HEADER_USER_EMAIL not in request.headers:
         return generate_error_response(400, "Authentication is required")
@@ -83,51 +92,51 @@ def get_message_count_by_bot(request):
     if not email:
         return generate_error_response(400, "Authentication is required")
 
-    # Get the bot's ID from the request parameters
+    # Get the parameters
     bot_id = request.GET.get('botId', None)
-    if bot_id is None:
-        return generate_error_response(400, "Bot ID is required")
-
-    # Check if the bot ID is a valid UUID
-    try:
-        uuid.UUID(bot_id)
-    except ValueError:
-        return generate_error_response(400, "Invalid Bot ID")
-
-    # Get sorting order from URL parameter
-    sorting_order = request.GET.get('sort', 'desc')
-
-    # Get the value of num_days from the query parameters
+    sorting_order = request.GET.get('sort', DESCENDING_ORDER)
     num_days = request.GET.get('daysLimit', None)
+
+    # Parameter checks
+    if bot_id is not None:
+        try:
+            # Check if the bot ID is a valid UUID
+            uuid_obj = uuid.UUID(bot_id)
+        except ValueError:
+            return generate_error_response(400, "Invalid Bot ID")
+        # Check if the bot exists
+        if not ChatBot.objects.filter(id=uuid_obj).exists():
+            return generate_error_response(404, "Bot not found")
+
     if num_days is not None:
         try:
             num_days = int(num_days)
+            start_date = date.today() - timedelta(days=num_days)
         except ValueError:
             return generate_error_response(400, "Invalid value for 'num_days'. Must be an integer.")
-
-    # Calculate the start date based on num_days
-    if num_days is not None:
-        start_date = date.today() - timedelta(days=num_days)
     else:
         start_date = None  # No date filtering
 
-    # Query messages based on user and bot
-    msg_count = Message.objects.filter(senderEmail=email, conversation__bot__id=bot_id)
+    # Query messages
+    msg_count = Message.objects.annotate(date=F('createdDate__date'), botId=F('conversation__bot__id')).filter(senderEmail=email)
+
+    # Filter by optional parameters
+    if bot_id is not None:
+        msg_count = msg_count.filter(conversation__bot__id=bot_id)
+
     if start_date:
         msg_count = msg_count.filter(createdDate__date__gte=start_date)
 
-    msg_count = msg_count \
-        .annotate(date=F('createdDate__date'), botId=F('conversation__bot__id')) \
-        .values('date', 'botId') \
-        .annotate(messageCount=Count('id'))
-
-    if sorting_order == 'asc':
+    if sorting_order == ASCENDING_ORDER:
         msg_count = msg_count.order_by('date')
-    elif sorting_order == 'desc':
+    else:
         msg_count = msg_count.order_by('-date')
 
+    # Get message counts by date
+    msg_count = msg_count.values('date').annotate(messageCount=Count('id'))
+
     # If no messages are found, return an empty list
-    if msg_count is None:
+    if not msg_count.exists():
         msg_count = []
 
     return generate_success_response("Message counts over time:", msg_count)

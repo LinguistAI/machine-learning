@@ -28,29 +28,28 @@ class GetMessageCountByBotTestCase(TestCase):
         Message.objects.create(senderEmail=self.email, senderType='bot', messageText='Message 4',
                                conversation=self.conversation2)
 
-    def test_get_message_count_by_bot(self):
-        url = reverse('get_message_count_by_bot') + '?botId=' + str(self.bot1.id)
+    def test_get_message_count_by_date(self):
+        url = reverse('get_message_count_by_date') + '?botId=' + str(self.bot1.id)
         headers = {HEADER_USER_EMAIL: self.email}
         response = self.client.get(url, headers=headers)
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data["data"]), 1)  # Only one bot
-        self.assertEqual(response.data["data"][0]['botId'], self.bot1.id)  # Bot 1's ID
+        self.assertEqual(len(response.data["data"]), 1)  # Messages sent over one day
         self.assertEqual(response.data["data"][0]['messageCount'], 2)  # Two messages in conversation 1
 
-    def test_get_message_count_by_bot_invalid_bot_id(self):
-        url = reverse('get_message_count_by_bot') + '?botId=invalid_bot_id'
+    def test_get_message_count_by_date_invalid_bot_id(self):
+        url = reverse('get_message_count_by_date') + '?botId=invalid_bot_id'
         headers = {HEADER_USER_EMAIL: self.email}
         response = self.client.get(url, headers=headers)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_get_message_count_by_bot_no_authentication(self):
-        url = reverse('get_message_count_by_bot') + '?botId=' + str(self.bot1.id)
+    def test_get_message_count_by_date_no_authentication(self):
+        url = reverse('get_message_count_by_date') + '?botId=' + str(self.bot1.id)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_get_message_count_by_bot_no_messages(self):
-        url = reverse('get_message_count_by_bot') + '?botId=' + str(self.bot3.id)
+    def test_get_message_count_by_date_no_messages(self):
+        url = reverse('get_message_count_by_date') + '?botId=' + str(self.bot3.id)
         headers = {HEADER_USER_EMAIL: self.email}
         response = self.client.get(url, headers=headers)
 
