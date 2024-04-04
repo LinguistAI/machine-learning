@@ -95,7 +95,7 @@ def get_message_count_by_date(request):
     # Get the parameters
     bot_id = request.GET.get('botId', None)
     sorting_order = request.GET.get('sort', DESCENDING_ORDER)
-    num_days = request.GET.get('daysLimit', None)
+    days_limit = request.GET.get('daysLimit', None)
 
     # Parameter checks
     if bot_id is not None:
@@ -108,12 +108,12 @@ def get_message_count_by_date(request):
         if not ChatBot.objects.filter(id=uuid_obj).exists():
             return generate_error_response(404, "Bot not found")
 
-    if num_days is not None:
+    if days_limit is not None:
         try:
-            num_days = int(num_days)
-            start_date = date.today() - timedelta(days=num_days)
+            days_limit = int(days_limit)
+            start_date = date.today() - timedelta(days=days_limit)
         except ValueError:
-            return generate_error_response(400, "Invalid value for 'num_days'. Must be an integer.")
+            return generate_error_response(400, "Invalid value for 'daysLimit'. Must be an integer.")
     else:
         start_date = None  # No date filtering
 
