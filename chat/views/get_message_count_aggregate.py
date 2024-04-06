@@ -76,14 +76,14 @@ def get_message_count_aggregate(request):
     # Get sorting order from URL parameter
     sorting_order = request.GET.get('sort', 'desc')  # Default to descending order
 
-    # Get the value of num_days from the query parameters
-    num_days = request.GET.get('daysLimit', None)
-    if num_days is not None:
+    # Get the value of days_limit from the query parameters
+    days_limit = request.GET.get('daysLimit', None)
+    if days_limit is not None:
         try:
-            num_days = int(num_days)
-            start_date = date.today() - timedelta(days=num_days)
+            days_limit = int(days_limit)
+            start_date = date.today() - timedelta(days=days_limit)
         except ValueError:
-            return generate_error_response(400, "Invalid value for 'num_days'. Must be an integer.")
+            return generate_error_response(400, "Invalid value for 'daysLimit'. Must be an integer.")
     else:
         start_date = None  # No date filtering
 
