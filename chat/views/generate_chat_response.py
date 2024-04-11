@@ -111,6 +111,16 @@ def generate_chat_response(request, conversation_id: str):
     message_count = Message.objects.filter(conversation=conversation).count()
     previous_messages = Message.objects.filter(conversation=conversation).order_by('createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
     
+    # Get conversation unknown words
+    unknown_words = conversation.unknownWords.all()
+    
+    unknown_words_list = [word.word for word in unknown_words]
+    
+    # If unknown words do not exist, get them by sending a get request to the unknown words endpoint
+    if not unknown_words:
+        unknown_words_list = None
+    
+    
     # Get user profile if exists
     profile_exists = Profile.objects.filter(email=email).exists()
     
@@ -127,7 +137,7 @@ def generate_chat_response(request, conversation_id: str):
     bot_profile = conversation_bot.prompt
     bot_difficulty = conversation_bot.difficultyLevel
     
-    chat_prompt = get_chat_prompt(bot_profile, bot_difficulty, previous_messages_str, profile, message)
+    chat_prompt = get_chat_prompt(bot_profile, bot_difficulty, previous_messages_str, profile, message, unknown_words_list)
     
     print(chat_prompt)
     
