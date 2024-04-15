@@ -11,9 +11,9 @@ def get_chat_prompt(bot_profile, bot_difficulty, context, profile, prompt, unkno
         
     if unknown_words_list:
         unknown_words_string = f"""
-        You should focus on the following unknown words.\n
-        You should keep the rest of the sentence easy to help user understand the unknown word better.\n
-        Also you should include some context clues for the user to better understand the unknown word.\n
+        You must focus on the following unknown words.\n
+        You must keep the rest of the sentence easy to help user understand the unknown word better.\n
+        Also you must include some context clues for the user to better understand the unknown word.\n
         Here is the list of unknown words:\n
         {unknown_words_list.join(", ")}
         """
