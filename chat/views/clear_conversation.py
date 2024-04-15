@@ -52,7 +52,17 @@ from drf_yasg import openapi
                     "msg": "Authentication is required"
                 }
             }
-        )
+        ),
+        "404": openapi.Response(
+            description="Bad request",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 404,
+                    "msg": "Conversation does not exist"
+                }
+            }
+        ),
     }
 )
 @api_view(['POST'])
@@ -74,7 +84,7 @@ def clear_conversation(request, conversation_id: str):
     
     # Now get the last five messages from the conversations
     if not conversation_exists:
-        return generate_error_response(400, "Conversation does not exist")
+        return generate_error_response(404, "Conversation does not exist")
     
     conversation = Conversation.objects.filter(id=conversation_id).first()
     
