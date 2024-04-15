@@ -54,7 +54,7 @@ from drf_yasg import openapi
             }
         ),
         "404": openapi.Response(
-            description="Bad request",
+            description="Not found",
             examples={
                 "application/json": {
                     "timestamp": "2021-08-30 14:00:00",
