@@ -73,7 +73,7 @@ def delete_message(request, message_id: str):
     
     # Now get the last five messages from the conversations
     if not message_exists:
-        return generate_error_response(400, "Message does not exist")
+        return generate_error_response(404, "Message does not exist")
     
     message = Message.objects.get(id=message_id)
     
