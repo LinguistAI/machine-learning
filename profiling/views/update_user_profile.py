@@ -29,10 +29,6 @@ def update_user_profile(request):
     
     profile_data = request.data.get("profile")
     
-    # Change birhtDate field to birthDate in profile_data
-    if "birhtDate" in profile_data:
-        profile_data["birthDate"] = profile_data.pop("birhtDate")
-    
     # TODO: Support hobbies
     if "hobbies" in profile_data:
         profile_data.pop("hobbies")
