@@ -1,8 +1,6 @@
-
-
 import requests
 from chat.models import Conversation, UnknownWord
-from constants.confidence_level_constants import CONFIDENCE_LEVELS
+from constants.unknown_word_constants import ACTIVE_WORD_LIST_SIZE, CONFIDENCE_LEVELS
 from constants.service_constants import USER_SERVICE_SELECT_WORD_PATH
 
 def update_unknown_words(conversation_id: str, user_email: str):
@@ -18,7 +16,7 @@ def update_unknown_words(conversation_id: str, user_email: str):
     
     request_body = {
         "conversationId": conversation_id,
-        "size": 5,
+        "size": ACTIVE_WORD_LIST_SIZE,
         "preservedWords": [],
     }
     
