@@ -1,6 +1,5 @@
 
-from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
 from chat.views.clear_conversation import clear_conversation
 from chat.views.create_conversation import create_conversation
 
