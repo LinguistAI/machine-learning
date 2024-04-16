@@ -72,6 +72,7 @@ def update_unknown_words(conversation_id: str, user_email: str):
         unknown_words.append(unknown_word)
         
     conversation.update_words = False
+    conversation.save()
 
     print("Unknown words for conversation {} are: {}".format(conversation_id, unknown_words))    
 
