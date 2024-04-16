@@ -2,6 +2,7 @@
 
 import requests
 from chat.models import Conversation, UnknownWord
+from constants.confidence_level_constants import CONFIDENCE_LEVELS
 from constants.service_constants import USER_SERVICE_SELECT_WORD_PATH
 
 def update_unknown_words(conversation_id: str, user_email: str):
@@ -44,13 +45,11 @@ def update_unknown_words(conversation_id: str, user_email: str):
         confidence = word_key.get("confidence")
         word = word_key.get("word")
         
-        # Give confidence an integer value according to the index in the following list:
-        confidence_levels = ["LOWEST", "LOW", "MODERATE", "HIGH", "HIGHEST"]
-        
         confidence_level = 0
         
-        if confidence in confidence_levels:
-            confidence_level = confidence_levels.index(confidence)
+        # Give confidence an integer value according to the index in the CONFIDENCE_LEVELS list:
+        if confidence in CONFIDENCE_LEVELS:
+            confidence_level = CONFIDENCE_LEVELS.index(confidence)
         
         # Check if the word already exists in the database
         word_exists = conversation.unknownWords.filter(word=word).exists()
