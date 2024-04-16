@@ -120,8 +120,11 @@ def generate_chat_response(request, conversation_id: str):
     # If unknown words do not exist, update them by sending a async request to the unknown words endpoint
     if conversation.update_words or not unknown_words:
         unknown_words_list = None
+        print("Attempting to update wordsfor {} conversation".format(conversation_id))
         executor = ThreadPoolExecutor()
         executor.submit(update_unknown_words, conversation_id, email)
+    else:
+        print("Unknown words exist for {} conversation".format(conversation_id))
     
     # Get user profile if exists
     profile_exists = Profile.objects.filter(email=email).exists()
