@@ -8,7 +8,6 @@ class UnknownWord(models.Model):
     createdDate = models.DateTimeField(auto_now_add=True)
     updatedDate = models.DateTimeField(auto_now=True)
     word = models.CharField(max_length=255)
-    conversation = models.ForeignKey('Conversation', on_delete=models.CASCADE, related_name='unknownWords', null=True)
     isActive = models.BooleanField(default=True)
     confidenceLevel = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
     
@@ -37,6 +36,7 @@ class Conversation(models.Model):
     title = models.CharField(max_length=255)
     bot = models.ForeignKey(ChatBot, on_delete=models.CASCADE, related_name='conversations')
     unknownWords = models.ManyToManyField(UnknownWord, related_name='conversations')
+    update_words = models.BooleanField(default=True)
     
     def __str__(self):
         return f"Conversation: {self.title}"    

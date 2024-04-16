@@ -2,8 +2,9 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from datetime import datetime
-from chat.models import Conversation, Message
+from chat.models import Conversation, Message, UnknownWord
 from chat.prompts.chat_prompt import get_chat_prompt
+from chat.tasks.update_unknown_words import update_unknown_words
 from constants.header_constants import HEADER_USER_EMAIL
 from profiling.models import Profile
 from profiling.tasks.update_profile import update_profile_async
@@ -112,14 +113,15 @@ def generate_chat_response(request, conversation_id: str):
     previous_messages = Message.objects.filter(conversation=conversation).order_by('createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
     
     # Get conversation unknown words
-    unknown_words = conversation.unknownWords.all()
+    unknown_words: list[UnknownWord] = conversation.unknownWords.all()
     
     unknown_words_list = [word.word for word in unknown_words]
     
-    # If unknown words do not exist, get them by sending a get request to the unknown words endpoint
-    if not unknown_words:
+    # If unknown words do not exist, update them by sending a async request to the unknown words endpoint
+    if conversation.update_words or not unknown_words:
         unknown_words_list = None
-    
+        executor = ThreadPoolExecutor()
+        executor.submit(update_unknown_words, conversation_id, email)
     
     # Get user profile if exists
     profile_exists = Profile.objects.filter(email=email).exists()
