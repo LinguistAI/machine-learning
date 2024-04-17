@@ -2,7 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 from rest_framework.decorators import api_view
 from chat.models import Conversation, UnknownWord
 from constants.header_constants import HEADER_USER_EMAIL
-from constants.unknown_word_constants import DECREASE_CONFIDENCE_ON_WRONG_MCQ_ANSWER, INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER
+from constants.unknown_word_constants import CONFIDENCE_LEVEL_SCALING_FACTOR, DECREASE_CONFIDENCE_ON_WRONG_MCQ_ANSWER, INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER
 from mcq.models import MCTQuestion, MCTTest
 
 from mcq.serializers import MCTTestSerializer
@@ -10,7 +10,7 @@ from mcq.tasks.decrease_confidence_mcq import decrease_confidence_mcq
 from mcq.tasks.increase_confidence_mcq import increase_confidence_mcq
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg.utils import swagger_auto_schema
-
+from math import floor
 from drf_yasg import openapi
 
 @swagger_auto_schema(
@@ -48,10 +48,12 @@ from drf_yasg import openapi
                                 "word": "Word",
                                 "question": "Question",
                                 "answer": "Correct answer",
-                                "option1": "Randomized Option 1",
-                                "option2": "Randomized Option 2",
-                                "option3": "Randomized Option 3",
-                                "option4": "Randomized Option 4",
+                                "options": [
+                                    "Randomized Option 1", 
+                                    "Randomized Option 2", 
+                                    "Randomized Option 3", 
+                                    "Randomized Option 4",
+                                ],
                                 "createdAt": "2021-08-30 14:00:00",
                                 "updatedAt": "2021-08-30 14:00:00",
                                 "isUserCorrect": False,
@@ -130,18 +132,33 @@ def finish_mcq_test(request):
     for question in questions:
         unknown_word = UnknownWord.objects.filter(word=question.word, email=email).first()
         if question.isUserCorrect:
+            previous_confidence = unknown_word.confidenceLevel
+            next_confidence = previous_confidence + INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER
+            
+            previous_confidence_category = floor(previous_confidence / CONFIDENCE_LEVEL_SCALING_FACTOR)
+            next_confidence_category = floor(next_confidence / CONFIDENCE_LEVEL_SCALING_FACTOR)
             # Increase confidence in current db
             unknown_word.increase_confidence(INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER)
-            # Update user service to increase confidence async
-            executor = ThreadPoolExecutor()
-            executor.submit(increase_confidence_mcq, email, unknown_word)
+            
+            if previous_confidence_category != next_confidence_category:
+                # Update user service to increase confidence async
+                executor = ThreadPoolExecutor()
+                executor.submit(increase_confidence_mcq, email, unknown_word)
             
         else:
+            previous_confidence = unknown_word.confidenceLevel
+            next_confidence = previous_confidence - DECREASE_CONFIDENCE_ON_WRONG_MCQ_ANSWER
+            
+            previous_confidence_category = floor(previous_confidence / CONFIDENCE_LEVEL_SCALING_FACTOR)
+            next_confidence_category = floor(next_confidence / CONFIDENCE_LEVEL_SCALING_FACTOR)
+            
             # Decrease confidence in current db
             unknown_word.decrease_confidence(DECREASE_CONFIDENCE_ON_WRONG_MCQ_ANSWER)
-            # Update user service to decrease confidence async
-            executor = ThreadPoolExecutor()
-            executor.submit(decrease_confidence_mcq, email, unknown_word)
+            
+            if previous_confidence_category != next_confidence_category:
+                # Update user service to decrease confidence async
+                executor = ThreadPoolExecutor()
+                executor.submit(decrease_confidence_mcq, email, unknown_word)
     
     correct_answers = test.questions.filter(isUserCorrect=True).count()
     correctness_percentage = (float(correct_answers) / float(total_questions)) * 100

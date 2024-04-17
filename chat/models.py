@@ -11,17 +11,19 @@ class UnknownWord(models.Model):
     updatedDate = models.DateTimeField(auto_now=True)
     word = models.CharField(max_length=255)
     isActive = models.BooleanField(default=True)
-    confidenceLevel = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
+    # Check unknown_word_constants.py for ML_CONFIDENCE_LEVEL_MAX value, it should be the max value
+    # It is not directly set here, as that value changes db migration will be required and service will be halted.
+    confidenceLevel = models.FloatField(default=1.0, validators=[MinValueValidator(1), MaxValueValidator(100)])
     
     def __str__(self):
         return "UnknownWord: " + self.word
     
     def increase_confidence(self, amount):
-        self.confidenceLevel += amount
+        self.confidenceLevel = min(self.confidenceLevel + amount, 100)
         self.save()
         
     def decrease_confidence(self, amount):
-        self.confidenceLevel -= amount
+        self.confidenceLevel = max(self.confidenceLevel - amount, 1)
         self.save()
 
 class ChatBot(models.Model):
