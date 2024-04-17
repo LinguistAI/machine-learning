@@ -5,6 +5,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class UnknownWord(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.CharField(max_length=255)
     createdDate = models.DateTimeField(auto_now_add=True)
     updatedDate = models.DateTimeField(auto_now=True)
     word = models.CharField(max_length=255)

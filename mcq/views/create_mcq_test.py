@@ -1,14 +1,15 @@
 import json
 import time
 from rest_framework.decorators import api_view
-from chat.models import Conversation
+from chat.models import Conversation, UnknownWord
 from constants.header_constants import HEADER_USER_EMAIL
-from mcq.prompts.create_mcq_prompt import create_mcq_prompt
+from constants.unknown_word_constants import ACTIVE_WORD_LIST_SIZE, MCQ_TEST_QUESTION_PER_WORD
+from mcq.models import MCTQuestion, MCTTest
 
+from mcq.serializers import MCTTestSerializer
+from mcq.tasks.create_mcq_question import create_mcq_question
 from utils.http_utils import generate_error_response, generate_success_response
-from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from utils.gemini_utils import gemini_model
 
 
 # Create Django Rest Endpoint that returns a list of messages for a given conversation
@@ -41,26 +42,51 @@ def create_mcq_test(request):
     
     conversation = Conversation.objects.get(id=conversationId)
     
-    # unknown_words = conversation.unknown_words
+    unknown_words: list[UnknownWord] = conversation.unknownWords.all()
+
+    
+    if not unknown_words or unknown_words.count() < ACTIVE_WORD_LIST_SIZE:
+        return generate_error_response(404, "You need to chat a bit more before starting a multiple choice test")
     
     
+    test = MCTTest.objects.create(
+        conversation=conversation,
+        email=email
+    )
     
+    for unknown_word_obj in unknown_words:
+        for _ in range(MCQ_TEST_QUESTION_PER_WORD):
+            json_response = create_mcq_question(unknown_word_obj.word)
+            
+            # JSON Response is as follows
+    #         {
+    # "question": "Write the sentence with the blank, indicating where the input word should fit."
+    # "options": [
+    # "Incorrect Option 1",
+    # "Incorrect Option 2",
+    # "Incorrect Option 3"
+    # ],
+    # "answer": "Correct Answer (Input Word)"
+    # }
+            # Create MCTQuestion object
+            # Add the answer to options while creating question object
+            question = MCTQuestion.objects.create(
+                email=email,
+                word=unknown_word_obj.word,
+                question=json_response["question"],
+                answer=json_response["answer"],
+                option1=json_response["options"][0],
+                option2=json_response["options"][1],
+                option3=json_response["options"][2],
+                option4=json_response["answer"],
+            )
+            question.randomize_options()
+            test.questions.add(question)
+            question.save()
     
+    test.save()
     
-    # # prompt = create_mcq_prompt(word)
+    test_serializer = MCTTestSerializer(test)
     
-    # # Log gemini response time
-    # start_time = time.time()
-    # response = gemini_model.generate_content(prompt)
-    # end_time = time.time()
-    
-    # # TODO: Add better logging
-    # print(f"Time taken to generate Gemini response: {end_time - start_time}")
-    
-    # print("Gemini response: ", response.text)
-    # print("Prompt feedback: ", response.prompt_feedback)
-    
-    # json_response = json.loads(response.text)
-    
-    return generate_success_response("Multiple choice question generated successfully", None)
+    return generate_success_response("Multiple choice question test generated successfully", test_serializer.data)
     
