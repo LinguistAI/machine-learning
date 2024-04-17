@@ -123,8 +123,8 @@ def generate_chat_response(request, conversation_id: str):
     if conversation.update_words or not unknown_words:
         unknown_words_list = None
         print("Attempting to update wordsfor {} conversation".format(conversation_id))
-        xp_executor = ThreadPoolExecutor()
-        xp_executor.submit(update_unknown_words, conversation_id, email)
+        unknown_word_executor = ThreadPoolExecutor()
+        unknown_word_executor.submit(update_unknown_words, conversation_id, email)
     else:
         print("Unknown words exist for {} conversation".format(conversation_id))
     
