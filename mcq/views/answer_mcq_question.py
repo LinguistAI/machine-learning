@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from constants.header_constants import HEADER_USER_EMAIL
 from mcq.models import MCTQuestion
 
+from mcq.serializers import MCTQuestionSerializer
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi

@@ -1,10 +1,13 @@
+from concurrent.futures import ThreadPoolExecutor
 from rest_framework.decorators import api_view
 from chat.models import Conversation, UnknownWord
 from constants.header_constants import HEADER_USER_EMAIL
-from constants.unknown_word_constants import INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER
+from constants.unknown_word_constants import DECREASE_CONFIDENCE_ON_WRONG_MCQ_ANSWER, INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER
 from mcq.models import MCTQuestion, MCTTest
 
 from mcq.serializers import MCTTestSerializer
+from mcq.tasks.decrease_confidence_mcq import decrease_confidence_mcq
+from mcq.tasks.increase_confidence_mcq import increase_confidence_mcq
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg.utils import swagger_auto_schema
 
@@ -125,10 +128,20 @@ def finish_mcq_test(request):
 
     # Update UnknownWord confidence levels based on answers
     for question in questions:
+        unknown_word = UnknownWord.objects.filter(word=question.word, email=email).first()
         if question.isUserCorrect:
-            UnknownWord.objects.filter(word=question.word, email=email).first().increase_confidence(INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER)
+            # Increase confidence in current db
+            unknown_word.increase_confidence(INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER)
+            # Update user service to increase confidence async
+            executor = ThreadPoolExecutor()
+            executor.submit(increase_confidence_mcq, email, unknown_word)
+            
         else:
-            UnknownWord.objects.filter(word=question.word, email=email).first().decrease_confidence(INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER)
+            # Decrease confidence in current db
+            unknown_word.decrease_confidence(DECREASE_CONFIDENCE_ON_WRONG_MCQ_ANSWER)
+            # Update user service to decrease confidence async
+            executor = ThreadPoolExecutor()
+            executor.submit(decrease_confidence_mcq, email, unknown_word)
     
     correct_answers = test.questions.filter(isUserCorrect=True).count()
     correctness_percentage = (float(correct_answers) / float(total_questions)) * 100
