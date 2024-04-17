@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from constants.header_constants import HEADER_USER_EMAIL
 from mcq.prompts.create_mcq_prompt import create_mcq_prompt
 
+from mcq.tasks.create_mcq_question import create_mcq_question
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -56,7 +57,7 @@ from utils.gemini_utils import gemini_model
     }
 )
 @api_view(['POST'])
-def create_mcq_question(request):
+def get_mcq_question(request):
     # Check the request header for email
     if not request.headers or HEADER_USER_EMAIL not in request.headers:
         return generate_error_response(400, "Authentication is required")
@@ -74,20 +75,7 @@ def create_mcq_question(request):
     if not word:
         return generate_error_response(400, "Word is required")
     
-    prompt = create_mcq_prompt(word)
-    
-    # Log gemini response time
-    start_time = time.time()
-    response = gemini_model.generate_content(prompt)
-    end_time = time.time()
-    
-    # TODO: Add better logging
-    print(f"Time taken to generate Gemini response: {end_time - start_time}")
-    
-    print("Gemini response: ", response.text)
-    print("Prompt feedback: ", response.prompt_feedback)
-    
-    json_response = json.loads(response.text)
+    json_response = create_mcq_question(word)
     
     return generate_success_response("Multiple choice question generated successfully", json_response)
     

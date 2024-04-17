@@ -5,6 +5,8 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 class UnknownWord(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    listId = models.CharField(max_length=255)
+    email = models.CharField(max_length=255)
     createdDate = models.DateTimeField(auto_now_add=True)
     updatedDate = models.DateTimeField(auto_now=True)
     word = models.CharField(max_length=255)
@@ -13,6 +15,14 @@ class UnknownWord(models.Model):
     
     def __str__(self):
         return "UnknownWord: " + self.word
+    
+    def increase_confidence(self, amount):
+        self.confidenceLevel += amount
+        self.save()
+        
+    def decrease_confidence(self, amount):
+        self.confidenceLevel -= amount
+        self.save()
 
 class ChatBot(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

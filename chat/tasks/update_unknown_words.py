@@ -12,7 +12,12 @@ def update_unknown_words(conversation_id: str, user_email: str):
         return None
 
     conversation = Conversation.objects.filter(id=conversation_id).first()
-    conversation.unknownWords.update(isActive=False)
+    
+    existing_unknown_words = conversation.unknownWords.all()
+    conversation.unknownWords.clear()
+    
+    existing_unknown_words.update(isActive=False)
+    
     
     request_body = {
         "conversationId": conversation_id,
@@ -42,6 +47,7 @@ def update_unknown_words(conversation_id: str, user_email: str):
         word_key = word_obj.get("word")
         confidence = word_key.get("confidence")
         word = word_key.get("word")
+        listId = word_key.get("ownerList").get("listId")
         
         confidence_level = 0
         
@@ -50,24 +56,25 @@ def update_unknown_words(conversation_id: str, user_email: str):
             confidence_level = CONFIDENCE_LEVELS.index(confidence)
         
         # Check if the word already exists in the database
-        word_exists = conversation.unknownWords.filter(word=word).exists()
+        word_exists = UnknownWord.objects.filter(word=word, listId=listId, email=user_email).exists()
         
         if word_exists:
-            unknown_word: UnknownWord = conversation.unknownWords.filter(word=word).first()
+            unknown_word: UnknownWord = UnknownWord.objects.filter(word=word, listId=listId, email=user_email).first()
             unknown_word.confidenceLevel = confidence_level
             unknown_word.isActive = True
-            unknown_word.save()
             
         else:        
             # Store the unknown word to the database
             unknown_word = UnknownWord.objects.create(
                 word=word,
                 confidenceLevel=confidence_level,
+                email=user_email,
+                listId=listId,
                 isActive=True
             )
-            unknown_word.save()
-            conversation.unknownWords.add(unknown_word)
-            conversation.save()
+        unknown_word.save()
+        conversation.unknownWords.add(unknown_word)
+        conversation.save()
         
         unknown_words.append(unknown_word)
         
