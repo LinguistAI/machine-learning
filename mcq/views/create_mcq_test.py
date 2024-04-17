@@ -11,10 +11,85 @@ from mcq.tasks.create_mcq_question import create_mcq_question
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg.utils import swagger_auto_schema
 
+from drf_yasg import openapi
+
 
 # Create Django Rest Endpoint that returns a list of messages for a given conversation
 @swagger_auto_schema(
     method='post',
+    operation_description="Create a multiple choice question test",
+    operation_id="create_mcq_test",
+    operation_summary="Create a multiple choice question test",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'conversationId': openapi.Schema(type=openapi.TYPE_STRING, description="Conversation ID")
+        }
+    ),
+    responses={
+        "200": openapi.Response(
+            description="Multiple choice question test generated successfully",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 200,
+                    "msg": "Multiple choice question test generated successfully",
+                    "data": {
+                        "id": "Test ID",
+                        "email": "User's email",
+                        "conversation": {
+                            "id": "Conversation ID",
+                            "createdAt": "2021-08-30 14:00:00",
+                            "updatedAt": "2021-08-30 14:00:00",
+                            "...": "..."
+                        },
+                        "questions": [
+                            {
+                                "id": "Question ID",
+                                "email": "User's email",
+                                "word": "Word",
+                                "question": "Question",
+                                "answer": "Correct answer",
+                                "option1": "Randomized Option 1",
+                                "option2": "Randomized Option 2",
+                                "option3": "Randomized Option 3",
+                                "option4": "Randomized Option 4",
+                                "createdAt": "2021-08-30 14:00:00",
+                                "updatedAt": "2021-08-30 14:00:00",
+                                "isUserCorrect": False,
+                                "hasUserAnswered": False
+                            }
+                        ],
+                        "createdAt": "2021-08-30 14:00:00",
+                        "updatedAt": "2021-08-30 14:00:00",
+                        "isCompleted": False,
+                        "correctPercentage": 0.0,
+                    }
+                }
+            }
+        ),
+        "400": openapi.Response(
+            description="Bad request",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 400,
+                    "msg": "Authentication is required"
+                }
+            }
+        ),
+        "404": openapi.Response(
+            description="Not found",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 404,
+                    "msg": "Conversation not found"
+                }
+            }
+        )
+    }
+    
 )
 @api_view(['POST'])
 def create_mcq_test(request):

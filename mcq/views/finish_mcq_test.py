@@ -8,12 +8,87 @@ from mcq.serializers import MCTTestSerializer
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg.utils import swagger_auto_schema
 
+from drf_yasg import openapi
 
 @swagger_auto_schema(
     method='post',
+    operation_description="Finish a multiple choice question test",
+    operation_id="finish_mcq_test",
+    operation_summary="Finish a multiple choice question test",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'testId': openapi.Schema(type=openapi.TYPE_STRING, description="Test ID")
+        }
+    ),
+    responses={
+        "200": openapi.Response(
+            description="Test completed successfully",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 200,
+                    "msg": "Multiple choice question test generated successfully",
+                    "data": {
+                        "id": "Test ID",
+                        "email": "User's email",
+                        "conversation": {
+                            "id": "Conversation ID",
+                            "createdAt": "2021-08-30 14:00:00",
+                            "updatedAt": "2021-08-30 14:00:00",
+                            "...": "..."
+                        },
+                        "questions": [
+                            {
+                                "id": "Question ID",
+                                "email": "User's email",
+                                "word": "Word",
+                                "question": "Question",
+                                "answer": "Correct answer",
+                                "option1": "Randomized Option 1",
+                                "option2": "Randomized Option 2",
+                                "option3": "Randomized Option 3",
+                                "option4": "Randomized Option 4",
+                                "createdAt": "2021-08-30 14:00:00",
+                                "updatedAt": "2021-08-30 14:00:00",
+                                "isUserCorrect": False,
+                                "hasUserAnswered": False
+                            }
+                        ],
+                        "createdAt": "2021-08-30 14:00:00",
+                        "updatedAt": "2021-08-30 14:00:00",
+                        "isCompleted": True,
+                        "correctPercentage": 80.00,
+                    }
+                }
+            }
+        ),
+        "400": openapi.Response(
+            description="Bad request",
+            extra="All questions must be answered before completing the test",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 400,
+                    "msg": "All questions must be answered before completing the test"
+                }
+            }
+        ),
+        "404": openapi.Response(
+            description="Not found",
+            examples={
+                "application/json": {
+                    "timestamp": "2021-08-30 14:00:00",
+                    "status": 404,
+                    "msg": "Test not found"
+                }
+            }
+        )
+    }
+    
 )
 @api_view(['POST'])
-def submit_answer(request, question_id: str):
+def finish_mcq_test(request):
     
     if not request.headers or HEADER_USER_EMAIL not in request.headers:
         return generate_error_response(400, "Authentication is required")
