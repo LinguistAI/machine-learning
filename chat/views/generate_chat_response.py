@@ -5,6 +5,7 @@ from datetime import datetime
 from chat.models import Conversation, Message, UnknownWord
 from chat.prompts.chat_prompt import get_chat_prompt
 from chat.tasks.update_unknown_words import update_unknown_words
+from chat.tasks.update_xp_on_chat import update_xp_on_chat
 from constants.header_constants import HEADER_USER_EMAIL
 from profiling.models import Profile
 from profiling.tasks.update_profile import update_profile_async
@@ -169,5 +170,8 @@ def generate_chat_response(request, conversation_id: str):
     if message_count > MAX_NO_OF_MESSAGE_CONTEXT:
         executor = ThreadPoolExecutor()
         executor.submit(update_profile_async, profile, previous_messages_str, data)
+        
+    executor = ThreadPoolExecutor()
+    executor.submit(update_xp_on_chat, email)
     
     return generate_success_response("Chat response generated successfully", data)
