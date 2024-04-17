@@ -1,7 +1,8 @@
 import requests
 from chat.models import Conversation, UnknownWord
-from constants.unknown_word_constants import ACTIVE_WORD_LIST_SIZE, CONFIDENCE_LEVELS
+from constants.unknown_word_constants import ACTIVE_WORD_LIST_SIZE, BACKEND_CONFIDENCE_LEVELS, CONFIDENCE_LEVEL_SCALING_FACTOR, ML_CONFIDENCE_LEVEL_MAX
 from constants.service_constants import USER_SERVICE_SELECT_WORD_PATH
+from math import ceil
 
 def update_unknown_words(conversation_id: str, user_email: str):
     
@@ -49,11 +50,11 @@ def update_unknown_words(conversation_id: str, user_email: str):
         word = word_key.get("word")
         listId = word_key.get("ownerList").get("listId")
         
-        confidence_level = 0
+        confidence_level = 1
         
         # Give confidence an integer value according to the index in the CONFIDENCE_LEVELS list:
-        if confidence in CONFIDENCE_LEVELS:
-            confidence_level = CONFIDENCE_LEVELS.index(confidence)
+        if confidence in BACKEND_CONFIDENCE_LEVELS:
+            confidence_level = max(BACKEND_CONFIDENCE_LEVELS.index(confidence) * CONFIDENCE_LEVEL_SCALING_FACTOR, 1)
         
         # Check if the word already exists in the database
         word_exists = UnknownWord.objects.filter(word=word, listId=listId, email=user_email).exists()

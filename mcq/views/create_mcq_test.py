@@ -6,7 +6,7 @@ from constants.header_constants import HEADER_USER_EMAIL
 from constants.unknown_word_constants import ACTIVE_WORD_LIST_SIZE, MCQ_TEST_QUESTION_PER_WORD
 from mcq.models import MCTQuestion, MCTTest
 
-from mcq.serializers import MCTTestSerializer
+from mcq.serializers import MCTTestHiddenAnswerSerializer
 from mcq.tasks.create_mcq_question import create_mcq_question
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg.utils import swagger_auto_schema
@@ -49,11 +49,12 @@ from drf_yasg import openapi
                                 "email": "User's email",
                                 "word": "Word",
                                 "question": "Question",
-                                "answer": "Correct answer",
-                                "option1": "Randomized Option 1",
-                                "option2": "Randomized Option 2",
-                                "option3": "Randomized Option 3",
-                                "option4": "Randomized Option 4",
+                                "options": [
+                                    "Randomized Option 1", 
+                                    "Randomized Option 2", 
+                                    "Randomized Option 3", 
+                                    "Randomized Option 4",
+                                ],
                                 "createdAt": "2021-08-30 14:00:00",
                                 "updatedAt": "2021-08-30 14:00:00",
                                 "isUserCorrect": False,
@@ -161,7 +162,7 @@ def create_mcq_test(request):
     
     test.save()
     
-    test_serializer = MCTTestSerializer(test)
+    test_serializer = MCTTestHiddenAnswerSerializer(test)
     
     return generate_success_response("Multiple choice question test generated successfully", test_serializer.data)
     
