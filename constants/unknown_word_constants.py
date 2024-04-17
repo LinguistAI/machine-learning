@@ -1,0 +1,10 @@
+
+CONFIDENCE_LEVELS = [
+    "LOWEST",
+    "LOW",
+    "MODERATE",
+    "HIGH",
+    "HIGHEST"
+]
+
+ACTIVE_WORD_LIST_SIZE = 5

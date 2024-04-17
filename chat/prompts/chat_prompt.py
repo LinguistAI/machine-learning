@@ -1,4 +1,4 @@
-def get_chat_prompt(bot_profile, bot_difficulty, context, profile, prompt):
+def get_chat_prompt(bot_profile, bot_difficulty, context, profile, prompt, unknown_words_list):
     
     if not context:
         context = "No context available"
@@ -8,6 +8,17 @@ def get_chat_prompt(bot_profile, bot_difficulty, context, profile, prompt):
         
     if not bot_profile:
         bot_profile = "A casual language companion designed to assist English language learners at the A2 conversational level or higher."
+        
+    if unknown_words_list:
+        unknown_words_string = f"""
+        You must focus on the following unknown words.\n
+        You must keep the rest of the sentence easy to help user understand the unknown word better.\n
+        Also you must include some context clues for the user to better understand the unknown word.\n
+        Here is the list of unknown words:\n
+        {unknown_words_list.join(", ")}
+        """
+    else: 
+        unknown_words_string = ""
         
     
     prompt_template = [
@@ -19,6 +30,7 @@ def get_chat_prompt(bot_profile, bot_difficulty, context, profile, prompt):
         Respond in a way that is relevant to your profile, but do not use broken or incorrect English.\n
         Your English must be clear, concise, and grammatically correct.\n
         Difficulty levels can range from 1 to 100, with 1 being the easiest and 100 being the most challenging.\n
+        {unknown_words_string}\n
         Your current difficulty level is:\n
         {bot_difficulty}\n
         \nYour profile is:\n
