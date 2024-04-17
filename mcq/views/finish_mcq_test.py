@@ -1,6 +1,8 @@
 from rest_framework.decorators import api_view
+from chat.models import Conversation, UnknownWord
 from constants.header_constants import HEADER_USER_EMAIL
-from mcq.models import MCTTest
+from constants.unknown_word_constants import INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER
+from mcq.models import MCTQuestion, MCTTest
 
 from mcq.serializers import MCTTestSerializer
 from utils.http_utils import generate_error_response, generate_success_response
@@ -36,18 +38,33 @@ def submit_answer(request, question_id: str):
     
     test = MCTTest.objects.get(id=testId)
     
+    
     # Check if all questions have been answered
     total_questions = test.questions.count()
     answered_questions = test.questions.filter(hasUserAnswered=True).count()
     
     if total_questions != answered_questions:
         return generate_error_response(400, "All questions must be answered before completing the test")
+
+    questions: list[MCTQuestion] = test.questions.all()
+
+    # Update UnknownWord confidence levels based on answers
+    for question in questions:
+        if question.isUserCorrect:
+            UnknownWord.objects.filter(word=question.word, email=email).first().increase_confidence(INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER)
+        else:
+            UnknownWord.objects.filter(word=question.word, email=email).first().decrease_confidence(INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER)
     
     correct_answers = test.questions.filter(isUserCorrect=True).count()
     correctness_percentage = (float(correct_answers) / float(total_questions)) * 100
     test.correctPercentage = correctness_percentage
     test.isCompleted = True
     test.save()
+    
+    # Update conversation to update words
+    conversation: Conversation = test.conversation
+    conversation.update_words = True
+    conversation.save()
     
     test_serializer = MCTTestSerializer(test)
     
