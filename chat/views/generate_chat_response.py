@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view
 from datetime import datetime
 from chat.models import Conversation, Message, UnknownWord
 from chat.prompts.chat_prompt import get_chat_prompt
+from chat.tasks.update_quest_on_chat import update_quest_on_chat
 from chat.tasks.update_unknown_words import update_unknown_words
 from chat.tasks.update_xp_on_chat import update_xp_on_chat
 from constants.header_constants import HEADER_USER_EMAIL
@@ -122,8 +123,8 @@ def generate_chat_response(request, conversation_id: str):
     if conversation.update_words or not unknown_words:
         unknown_words_list = None
         print("Attempting to update wordsfor {} conversation".format(conversation_id))
-        executor = ThreadPoolExecutor()
-        executor.submit(update_unknown_words, conversation_id, email)
+        xp_executor = ThreadPoolExecutor()
+        xp_executor.submit(update_unknown_words, conversation_id, email)
     else:
         print("Unknown words exist for {} conversation".format(conversation_id))
     
@@ -168,10 +169,13 @@ def generate_chat_response(request, conversation_id: str):
     
     # async call to update profile
     if message_count > MAX_NO_OF_MESSAGE_CONTEXT:
-        executor = ThreadPoolExecutor()
-        executor.submit(update_profile_async, profile, previous_messages_str, data)
+        profile_executor = ThreadPoolExecutor()
+        profile_executor.submit(update_profile_async, profile, previous_messages_str, data)
         
-    executor = ThreadPoolExecutor()
-    executor.submit(update_xp_on_chat, email)
+    xp_executor = ThreadPoolExecutor()
+    xp_executor.submit(update_xp_on_chat, email)
+    
+    quest_executor = ThreadPoolExecutor()
+    quest_executor.submit(update_quest_on_chat, email, message)
     
     return generate_success_response("Chat response generated successfully", data)
