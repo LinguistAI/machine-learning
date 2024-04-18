@@ -2,6 +2,8 @@
 import logging
 import time
 from chat.models import UnknownWord
+from constants.unknown_word_constants import CHANGE_CONFIDENCE_ON_SENTENCE_SCORING
+from mcq.tasks.alter_word_confidence import decrease_word_confidence, increase_word_confidence
 from scoring.models import WordScore
 from utils.gemini_utils import gemini_model
 import re
@@ -118,7 +120,20 @@ def score_user_prompt(email: str, unknownWords: list[UnknownWord], message: str)
         sentence_structure = int(sentence_structure) if int(sentence_structure) in range(1, 6) else 1
         rest_of_sentence = int(rest_of_sentence) if int(rest_of_sentence) in range(1, 6) else 1
         
+        avg_score = (gramatical_correctness + spelling + punctuation + capitalization + word_choice + sentence_structure + rest_of_sentence) / 7.0
+        
+        avg = round(avg_score)
+        
         unknown_word = unknownWords.filter(word=word).first()
+        
+        confidence_level_change = CHANGE_CONFIDENCE_ON_SENTENCE_SCORING[avg]
+        
+        if confidence_level_change < 0:
+            confidence_level_change = abs(confidence_level_change)
+            decrease_word_confidence(email, unknown_word, confidence_level_change)
+        elif confidence_level_change > 0:
+            confidence_level_change = abs(confidence_level_change)
+            increase_word_confidence(email, unknown_word, confidence_level_change)
         
         word_score = WordScore.objects.create(
             word=word,
