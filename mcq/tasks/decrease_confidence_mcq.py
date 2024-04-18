@@ -2,13 +2,17 @@ import requests
 from chat.models import UnknownWord
 from constants.service_constants import USER_SERVICE_DECREASE_CONFIDENCE_PATH
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 def decrease_confidence_mcq(user_email: str, unknown_word: UnknownWord):
 
     if not user_email:
-        print("Error while decreasing confidence for user. User email is required")
+        logger.error("Error while decreasing confidence for user. User email is required")
         
     if not unknown_word:
-        print("Error while decreasing confidence for user {}. Unknown word is required".format(user_email))
+        logger.error("Error while decreasing confidence for user {}. Unknown word is required".format(user_email))
 
     headers = {
         "UserEmail": user_email
@@ -24,13 +28,15 @@ def decrease_confidence_mcq(user_email: str, unknown_word: UnknownWord):
                              headers=headers)
 
     if not response or response.status_code != 200:
+        logger.error("Error while decreasing confidence for word {}. Request failed: %s".format(unknown_word.word), response.text)
         return False
 
     response = response.json()
 
     if "status" not in response or response["status"] != 200:
+        logger.error("Error while decreasing confidence for word {}. Request failed: %s".format(unknown_word.word), response)
         return False
 
-    print("Confidence decreased for word {} successfully".format(unknown_word.word), response)
+    logger.info("Confidence decreased for word {} successfully".format(unknown_word.word), response)
 
     return True

@@ -18,7 +18,11 @@ from concurrent.futures import ThreadPoolExecutor
 
 
 from drf_yasg import openapi
-    
+
+import logging
+
+logger = logging.getLogger(__name__)
+
 @swagger_auto_schema(
     method='get',
     operation_description="Get all conversations for the current user",
@@ -53,5 +57,7 @@ def get_user_conversations(request):
     conversations = Conversation.objects.filter(userEmail=email).select_related('bot')
     
     serializer = ConversationSerializer(conversations, many=True)
+    
+    logger.info("Conversations gathered successfully for user: %s", email)
     
     return generate_success_response("Conversations gathered successfully", serializer.data)

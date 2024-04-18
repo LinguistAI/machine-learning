@@ -1,4 +1,4 @@
-def get_chat_prompt(bot_profile, bot_difficulty, context, profile, prompt, unknown_words_list):
+def get_chat_prompt(bot_profile, bot_difficulty, context, profile, prompt, unknown_words_list: list[str]):
     
     if not context:
         context = "No context available"
@@ -15,7 +15,7 @@ def get_chat_prompt(bot_profile, bot_difficulty, context, profile, prompt, unkno
         You must keep the rest of the sentence easy to help user understand the unknown word better.\n
         Also you must include some context clues for the user to better understand the unknown word.\n
         Here is the list of unknown words:\n
-        {unknown_words_list.join(", ")}
+        {"".join(unknown_words_list)}
         """
     else: 
         unknown_words_string = ""
@@ -46,4 +46,6 @@ def get_chat_prompt(bot_profile, bot_difficulty, context, profile, prompt, unkno
         {prompt}\n
         """
     ]
+    
+    
     return ''.join(prompt_template)
