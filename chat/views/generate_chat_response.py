@@ -11,6 +11,7 @@ from constants.header_constants import HEADER_USER_EMAIL
 from profiling.models import Profile
 from profiling.tasks.update_profile import update_profile_async
 
+from scoring.tasks.score_user_prompt import score_user_prompt
 from utils.http_utils import generate_error_response, generate_success_response
 from utils.gemini_utils import gemini_model
 from drf_yasg.utils import swagger_auto_schema
@@ -31,8 +32,13 @@ def handle_future_exception(future, future_name: str):
     try:
         future.result()  # This will re-raise any exception that was caught during the execution of the task.
     except Exception as e:
-        logger.error(f"An error occurred during future {future_name}: {e}")
+        logger.error(f"An error occurred during future {future_name}")
+        logger.error(future.exception())
         
+
+
+# Create a global _executor
+_executor = ThreadPoolExecutor(max_workers=5)
 
 def handle_profile_future_exception(future):
     handle_future_exception(future, "profile")
@@ -45,6 +51,9 @@ def handle_quest_future_exception(future):
     
 def handle_unknown_words_future_exception(future):
     handle_future_exception(future, "unknown_words")
+    
+def handle_scoring_future_exception(future):
+    handle_future_exception(future, "scoring")
 
 @swagger_auto_schema(
     method='post',
@@ -147,9 +156,8 @@ def generate_chat_response(request, conversation_id: str):
     if conversation.update_words or not unknown_words:
         unknown_words_list = None
         logger.info("Attempting to update words for {} conversation".format(conversation_id))
-        with ThreadPoolExecutor() as unknown_word_executor:
-            future_unknown_words = unknown_word_executor.submit(update_unknown_words, conversation_id, email)
-            future_unknown_words.add_done_callback(handle_unknown_words_future_exception)
+        future_unknown_words = _executor.submit(update_unknown_words, conversation_id, email)
+        future_unknown_words.add_done_callback(handle_unknown_words_future_exception)
             
     else:
         logger.info("Unknown words exist for {} conversation".format(conversation_id))
@@ -191,24 +199,28 @@ def generate_chat_response(request, conversation_id: str):
     bot_message = Message.objects.create(conversation=conversation, messageText=data, senderEmail="bot", senderType="bot")
     bot_message.save()
     
-    # Create a shared executor
-    with ThreadPoolExecutor(max_workers=4) as executor:
-        # Update profile if needed
-        if message_count > MAX_NO_OF_MESSAGE_CONTEXT:
-            logger.info("Profile executor for conversation {} executing".format(conversation_id))
-            future_profile = executor.submit(update_profile_async, profile, previous_messages_str, data)
-            future_profile.add_done_callback(handle_profile_future_exception)
-            logger.info("Profile executor for conversation {} executed".format(conversation_id))
+    # Update profile if needed
+    if message_count > MAX_NO_OF_MESSAGE_CONTEXT:
+        logger.info("Profile _executor for conversation {} executing".format(conversation_id))
+        future_profile = _executor.submit(update_profile_async, profile, previous_messages_str, data)
+        future_profile.add_done_callback(handle_profile_future_exception)
+        logger.info("Profile _executor for conversation {} executed".format(conversation_id))
+    
+    logger.info("XP _executor for conversation {} executing".format(conversation_id))
+    future_xp = _executor.submit(update_xp_on_chat, email)
+    future_xp.add_done_callback(handle_xp_future_exception)
+    logger.info("XP _executor for conversation {} executed".format(conversation_id))
+    
+    logger.info("Quest _executor for conversation {} executing".format(conversation_id))
+    future_quest = _executor.submit(update_quest_on_chat, email, message)
+    future_quest.add_done_callback(handle_quest_future_exception)
+    logger.info("Quest _executor for conversation {} executed".format(conversation_id))
+    
+    logger.info("Scoring _executor for conversation {} executing".format(conversation_id))
+    future_scoring = _executor.submit(score_user_prompt, email, unknown_words, message)
+    future_scoring.add_done_callback(handle_scoring_future_exception)
+    logger.info("Scoring _executor for conversation {} executed".format(conversation_id))
         
-        logger.info("XP executor for conversation {} executing".format(conversation_id))
-        future_xp = executor.submit(update_xp_on_chat, email)
-        future_xp.add_done_callback(handle_xp_future_exception)
-        logger.info("XP executor for conversation {} executed".format(conversation_id))
-        
-        logger.info("Quest executor for conversation {} executing".format(conversation_id))
-        future_quest = executor.submit(update_quest_on_chat, email, message)
-        future_quest.add_done_callback(handle_quest_future_exception)
-        logger.info("Quest executor for conversation {} executed".format(conversation_id))
     
     return generate_success_response("Chat response generated successfully", data)
 
