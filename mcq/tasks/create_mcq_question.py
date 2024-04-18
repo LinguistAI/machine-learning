@@ -3,7 +3,9 @@ import time
 from mcq.prompts.create_mcq_prompt import create_mcq_prompt
 
 from utils.gemini_utils import gemini_model
+import logging
 
+logger = logging.getLogger(__name__)
 
 def create_mcq_question(word: str):
     
@@ -14,11 +16,7 @@ def create_mcq_question(word: str):
     response = gemini_model.generate_content(prompt)
     end_time = time.time()
     
-    # TODO: Add better logging
-    print(f"Time taken to generate Gemini response: {end_time - start_time}")
-    
-    print("Gemini response: ", response.text)
-    print("Prompt feedback: ", response.prompt_feedback)
+    logger.info(f"Time taken to generate Gemini response for MCQ: {end_time - start_time}")
     
     json_response = json.loads(response.text)
     

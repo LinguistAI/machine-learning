@@ -21,6 +21,31 @@ from concurrent.futures import ThreadPoolExecutor
 
 from drf_yasg import openapi
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
+
+def handle_future_exception(future, future_name: str):
+    try:
+        future.result()  # This will re-raise any exception that was caught during the execution of the task.
+    except Exception as e:
+        logger.error(f"An error occurred during future {future_name}: {e}")
+        
+
+def handle_profile_future_exception(future):
+    handle_future_exception(future, "profile")
+    
+def handle_xp_future_exception(future):
+    handle_future_exception(future, "xp")
+    
+def handle_quest_future_exception(future):
+    handle_future_exception(future, "quest")
+    
+def handle_unknown_words_future_exception(future):
+    handle_future_exception(future, "unknown_words")
+
 @swagger_auto_schema(
     method='post',
     operation_description="Generate a response to a chat message",
@@ -99,15 +124,14 @@ def generate_chat_response(request, conversation_id: str):
     if not conversation_id:
         return generate_error_response(400, "Conversation ID is required")
     
-    print(f"User message: {message}")
+    logger.info(f"Generating chat response for {email} in conversation {conversation_id}")
     
     # Get the conversation id that matches the email if exists
     conversation_exists = Conversation.objects.filter(id=conversation_id).exists()
-    
-    print(f"Conversation exists: {conversation_exists}")
         
     # Now get the last five messages from the conversations
     if not conversation_exists:
+        logger.error(f"Conversation does not exist for {conversation_id}")
         return generate_error_response(400, "Conversation does not exist")
     
     conversation = Conversation.objects.filter(id=conversation_id).first()
@@ -122,11 +146,13 @@ def generate_chat_response(request, conversation_id: str):
     # If unknown words do not exist, update them by sending a async request to the unknown words endpoint
     if conversation.update_words or not unknown_words:
         unknown_words_list = None
-        print("Attempting to update wordsfor {} conversation".format(conversation_id))
-        unknown_word_executor = ThreadPoolExecutor()
-        unknown_word_executor.submit(update_unknown_words, conversation_id, email)
+        logger.info("Attempting to update words for {} conversation".format(conversation_id))
+        with ThreadPoolExecutor() as unknown_word_executor:
+            future_unknown_words = unknown_word_executor.submit(update_unknown_words, conversation_id, email)
+            future_unknown_words.add_done_callback(handle_unknown_words_future_exception)
+            
     else:
-        print("Unknown words exist for {} conversation".format(conversation_id))
+        logger.info("Unknown words exist for {} conversation".format(conversation_id))
     
     # Get user profile if exists
     profile_exists = Profile.objects.filter(email=email).exists()
@@ -146,18 +172,16 @@ def generate_chat_response(request, conversation_id: str):
     
     chat_prompt = get_chat_prompt(bot_profile, bot_difficulty, previous_messages_str, profile, message, unknown_words_list)
     
-    print(chat_prompt)
+    # logger.info(f"Chat prompt generated for conversation {conversation_id}: {chat_prompt}")
     
     # Log gemini response time
     start_time = time.time()
     response = gemini_model.generate_content(chat_prompt)
     end_time = time.time()
     
-    # TODO: Add better logging
-    print(f"Time taken to generate Gemini response: {end_time - start_time}")
+    logger.info(f"Time taken to generate Gemini response for conversation {conversation_id}: {end_time - start_time}")
     
-    print("Gemini response: ", response)
-    print("Prompt feedback: ", response.prompt_feedback)
+    logger.info(f"Prompt feedback: {response.prompt_feedback}")
     data = response.text
 
     # Add message to conversation
@@ -167,15 +191,24 @@ def generate_chat_response(request, conversation_id: str):
     bot_message = Message.objects.create(conversation=conversation, messageText=data, senderEmail="bot", senderType="bot")
     bot_message.save()
     
-    # async call to update profile
-    if message_count > MAX_NO_OF_MESSAGE_CONTEXT:
-        profile_executor = ThreadPoolExecutor()
-        profile_executor.submit(update_profile_async, profile, previous_messages_str, data)
+    # Create a shared executor
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        # Update profile if needed
+        if message_count > MAX_NO_OF_MESSAGE_CONTEXT:
+            logger.info("Profile executor for conversation {} executing".format(conversation_id))
+            future_profile = executor.submit(update_profile_async, profile, previous_messages_str, data)
+            future_profile.add_done_callback(handle_profile_future_exception)
+            logger.info("Profile executor for conversation {} executed".format(conversation_id))
         
-    xp_executor = ThreadPoolExecutor()
-    xp_executor.submit(update_xp_on_chat, email)
-    
-    quest_executor = ThreadPoolExecutor()
-    quest_executor.submit(update_quest_on_chat, email, message)
+        logger.info("XP executor for conversation {} executing".format(conversation_id))
+        future_xp = executor.submit(update_xp_on_chat, email)
+        future_xp.add_done_callback(handle_xp_future_exception)
+        logger.info("XP executor for conversation {} executed".format(conversation_id))
+        
+        logger.info("Quest executor for conversation {} executing".format(conversation_id))
+        future_quest = executor.submit(update_quest_on_chat, email, message)
+        future_quest.add_done_callback(handle_quest_future_exception)
+        logger.info("Quest executor for conversation {} executed".format(conversation_id))
     
     return generate_success_response("Chat response generated successfully", data)
+

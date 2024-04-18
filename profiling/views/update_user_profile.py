@@ -33,7 +33,6 @@ def update_user_profile(request):
     if "hobbies" in profile_data:
         profile_data.pop("hobbies")
         
-    print("Profile data", profile_data)
     
     # Before updating the profile, check if the profile exists
     profile_exists = Profile.objects.filter(email=email).exists()
@@ -45,6 +44,5 @@ def update_user_profile(request):
         profile = Profile.objects.filter(email=email).first()
         
     serializer = ProfileSerializer(profile)
-    print("Profile", profile)
     
     return generate_success_response("Profile updated successfully", serializer.data)

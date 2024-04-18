@@ -30,8 +30,6 @@ def generate_success_response(message: str, data: dict):
         "msg": message
     }
     
-    print(data)
-    
     if data is not None:
         custom_response_data["data"] = data
     

@@ -28,7 +28,6 @@ def custom_exception_handler(exc, context):
 
 
 def custom_404_view(request, exception):
-    print("custom_404_view")
     data = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "status": 404,
@@ -37,7 +36,6 @@ def custom_404_view(request, exception):
     return JsonResponse(data, status=404)
 
 def custom_500_view(request):
-    print("custom_500_view")
     data = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "status": 500,

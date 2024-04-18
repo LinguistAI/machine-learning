@@ -3,13 +3,16 @@ from chat.models import Conversation, UnknownWord
 from constants.unknown_word_constants import ACTIVE_WORD_LIST_SIZE, BACKEND_CONFIDENCE_LEVELS, CONFIDENCE_LEVEL_SCALING_FACTOR, ML_CONFIDENCE_LEVEL_MAX
 from constants.service_constants import USER_SERVICE_SELECT_WORD_PATH
 from math import ceil
+import logging
+
+logger = logging.getLogger(__name__)
 
 def update_unknown_words(conversation_id: str, user_email: str):
     
     conversation_exists = Conversation.objects.filter(id=conversation_id).exists()
     
     if not conversation_exists:
-        print("Error while getting unknown words for {} conversation. Conversation does not exist".format(conversation_id))
+        logger.error("Error while getting unknown words for {} conversation. Conversation does not exist".format(conversation_id))
         return None
 
     conversation = Conversation.objects.filter(id=conversation_id).first()
@@ -82,6 +85,6 @@ def update_unknown_words(conversation_id: str, user_email: str):
     conversation.update_words = False
     conversation.save()
 
-    print("Unknown words for conversation {} are: {}".format(conversation_id, unknown_words))    
+    logger.info("Unknown words for conversation {} are: {}".format(conversation_id, unknown_words))    
 
     return unknown_words

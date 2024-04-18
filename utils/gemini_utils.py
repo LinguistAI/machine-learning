@@ -2,6 +2,10 @@ import google.generativeai as genai
 import os 
 import json
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY, transport="rest")
 
@@ -52,8 +56,7 @@ def parse_gemini_json(data: str):
         # return empty json
         return json.loads("{}")
 
-# TODO: Add better logging
 # TODO: Sometimes Gemini Model rejects input due to safety settings, handle that
-print("Gemini model is ready to use")
+logger.info("Gemini model is ready to use")
 
 
