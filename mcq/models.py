@@ -16,6 +16,7 @@ class MCTQuestion(models.Model):
     updatedAt = models.DateTimeField(auto_now=True)
     hasUserAnswered = models.BooleanField(default=False)
     isUserCorrect = models.BooleanField(default=False)
+    userAnswer = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
         return "MCQ Question: " + self.question
