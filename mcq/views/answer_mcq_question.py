@@ -102,6 +102,7 @@ def answer_mcq_question(request):
 
     # Update the question with user's answer
     # compare the user's answer with the correct answer as string
+    question.userAnswer = user_answer
     question.isUserCorrect = (str(user_answer).lower() == question.answer.lower())
     question.hasUserAnswered = True
     question.save()
