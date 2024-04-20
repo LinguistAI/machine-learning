@@ -1,20 +1,22 @@
+from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from chat.models import Conversation, Message
 from chat.serializers import MessageSerializer
 from constants.header_constants import HEADER_USER_EMAIL
 
-from utils.http_utils import generate_error_response, generate_success_response
+from utils.http_utils import generate_error_response
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-
+from constants.profile_constants import MAX_NO_OF_MESSAGE_CONTEXT
 # Create Django Rest Endpoint that returns a list of messages for a given conversation
 
 @swagger_auto_schema(
     method='get',
     deprecated=True,
-    operation_description="Get all messages from current user's conversation",
-    operation_id="Get all messages from current user's conversation",
-    operation_summary="Get all messages from current user's conversation",
+    operation_description=f"Get last {MAX_NO_OF_MESSAGE_CONTEXT} messages from current user's conversation",
+    operation_id=f"Get last {MAX_NO_OF_MESSAGE_CONTEXT} messages from current user's conversation",
+    operation_summary=f"Get last {MAX_NO_OF_MESSAGE_CONTEXT} messages from current user's conversation",
+    
     responses={
         "200": openapi.Response(
             description="Messages retrieved successfully",
@@ -37,10 +39,10 @@ from drf_yasg.utils import swagger_auto_schema
                 }
             }
         )
-    }
+    },
 )
 @api_view(['GET'])
-def get_all_conversation_messages(request, conversation_id: str):
+def get_last_conversation_messages(request, conversation_id: str):
     # Check the request header for email
     if not request.headers or HEADER_USER_EMAIL not in request.headers:
         return generate_error_response(400, "Authentication is required")
@@ -56,9 +58,9 @@ def get_all_conversation_messages(request, conversation_id: str):
     conversation = Conversation.objects.filter(id=conversation_id).first()
     
     # Now get the last five messages from the conversation
-    previous_messages = Message.objects.filter(conversation=conversation).order_by('createdDate')
+    previous_messages = Message.objects.filter(conversation=conversation).order_by('createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
     
     serializer = MessageSerializer(previous_messages, many=True)
     
-    return generate_success_response("Messages retrieved successfully", serializer.data)
+    return Response(serializer.data, status=200)
     
