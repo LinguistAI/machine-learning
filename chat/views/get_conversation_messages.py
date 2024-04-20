@@ -60,6 +60,9 @@ logger = logging.getLogger(__name__)
     }
 )
 @api_view(['GET'])
-def get_conversation_messages(request, conversation_id: str):
+def get_conversation_messages(request: rest_framework.request.Request, conversation_id: str):
+    # In order to have custom Swagger documentation, we needed this view.
+    # however, this view uses rest_framework.request.Request instead of the standard Django request object
+    # Convert REST request to Django request by accessing the Django _request object
     return MessageListView.as_view()(request._request, conversation_id=conversation_id)
     
