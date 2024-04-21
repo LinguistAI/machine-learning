@@ -6,7 +6,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def decrease_confidence_mcq(user_email: str, unknown_word: UnknownWord):
+def request_decrease_confidence_backend(user_email: str, unknown_word: UnknownWord):
 
     if not user_email:
         logger.error("Error while decreasing confidence for user. User email is required")

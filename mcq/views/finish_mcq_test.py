@@ -6,8 +6,9 @@ from constants.unknown_word_constants import CONFIDENCE_LEVEL_SCALING_FACTOR, DE
 from mcq.models import MCTQuestion, MCTTest
 
 from mcq.serializers import MCTTestSerializer
-from mcq.tasks.decrease_confidence_mcq import decrease_confidence_mcq
-from mcq.tasks.increase_confidence_mcq import increase_confidence_mcq
+from mcq.tasks.alter_word_confidence import decrease_word_confidence, increase_word_confidence
+from mcq.tasks.request_decrease_confidence_backend import request_decrease_confidence_backend
+from mcq.tasks.request_increase_confidence_backend import request_increase_confidence_backend
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg.utils import swagger_auto_schema
 from math import floor
@@ -132,33 +133,10 @@ def finish_mcq_test(request):
     for question in questions:
         unknown_word = UnknownWord.objects.filter(word=question.word, email=email).first()
         if question.isUserCorrect:
-            previous_confidence = unknown_word.confidenceLevel
-            next_confidence = previous_confidence + INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER
-            
-            previous_confidence_category = floor(previous_confidence / CONFIDENCE_LEVEL_SCALING_FACTOR)
-            next_confidence_category = floor(next_confidence / CONFIDENCE_LEVEL_SCALING_FACTOR)
-            # Increase confidence in current db
-            unknown_word.increase_confidence(INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER)
-            
-            if previous_confidence_category != next_confidence_category:
-                # Update user service to increase confidence async
-                executor = ThreadPoolExecutor()
-                executor.submit(increase_confidence_mcq, email, unknown_word)
+            increase_word_confidence(email, unknown_word, INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER)
             
         else:
-            previous_confidence = unknown_word.confidenceLevel
-            next_confidence = previous_confidence - DECREASE_CONFIDENCE_ON_WRONG_MCQ_ANSWER
-            
-            previous_confidence_category = floor(previous_confidence / CONFIDENCE_LEVEL_SCALING_FACTOR)
-            next_confidence_category = floor(next_confidence / CONFIDENCE_LEVEL_SCALING_FACTOR)
-            
-            # Decrease confidence in current db
-            unknown_word.decrease_confidence(DECREASE_CONFIDENCE_ON_WRONG_MCQ_ANSWER)
-            
-            if previous_confidence_category != next_confidence_category:
-                # Update user service to decrease confidence async
-                executor = ThreadPoolExecutor()
-                executor.submit(decrease_confidence_mcq, email, unknown_word)
+            decrease_word_confidence(email, unknown_word, DECREASE_CONFIDENCE_ON_WRONG_MCQ_ANSWER)
     
     correct_answers = test.questions.filter(isUserCorrect=True).count()
     correctness_percentage = (float(correct_answers) / float(total_questions)) * 100
