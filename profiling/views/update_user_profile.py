@@ -39,8 +39,8 @@ def update_user_profile(request):
     
     if not profile_exists:
         profile = Profile.objects.create(email=email, **profile_data).save()
-    else: 
-        Profile.objects.update(email=email, **profile_data)
+    else:
+        Profile.objects.filter(email=email).update(**profile_data)
         profile = Profile.objects.filter(email=email).first()
         
     serializer = ProfileSerializer(profile)

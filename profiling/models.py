@@ -1,6 +1,14 @@
 import uuid
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.serializers.json import DjangoJSONEncoder
+
+class JsonTextListField(models.TextField):
+    def to_python(self, value):
+        if isinstance(value, list):
+            # Convert the list to a JSON string
+            return DjangoJSONEncoder().encode(value)
+        return value
 
 
 class Hobby(models.Model):
@@ -12,10 +20,10 @@ class Profile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     createdDate = models.DateTimeField(auto_now_add=True)
     updatedDate = models.DateTimeField(auto_now=True)
-    likes = models.TextField(null=True)
-    loves = models.TextField(null=True)
-    dislikes = models.TextField(null=True)
-    hates = models.TextField(null=True)
+    likes = JsonTextListField(null=True)
+    loves = JsonTextListField(null=True)
+    dislikes = JsonTextListField(null=True)
+    hates = JsonTextListField(null=True)
     profileInfo = models.TextField(null=True)
     email = models.CharField(max_length=255, unique=True)
     birthDate = models.DateField(null=True)
