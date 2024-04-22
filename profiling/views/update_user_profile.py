@@ -38,7 +38,8 @@ def update_user_profile(request):
     profile_exists = Profile.objects.filter(email=email).exists()
     
     if not profile_exists:
-        profile = Profile.objects.create(email=email, **profile_data).save()
+        Profile.objects.create(email=email, **profile_data).save()
+        profile = Profile.objects.filter(email=email).first()
     else:
         Profile.objects.filter(email=email).update(**profile_data)
         profile = Profile.objects.filter(email=email).first()
