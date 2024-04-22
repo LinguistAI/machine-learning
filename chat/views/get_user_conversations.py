@@ -42,6 +42,7 @@ logger = logging.getLogger(__name__)
                             "createdDate": "2024-04-18T09:29:36.556201Z",
                             "updatedDate": "2024-04-18T09:42:47.071779Z",
                             "userEmail": "mehmet_dogu123@hotmail.com",
+                            "title": "Albert Einstein",
                             "bot": {
                                 "id": "37ed45c3-e029-4769-b5de-03ded8a5abdf",
                                 "createdDate": "2024-02-26T21:45:49.031000Z",
