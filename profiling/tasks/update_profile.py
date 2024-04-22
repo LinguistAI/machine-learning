@@ -30,13 +30,6 @@ def update_profile_async(profile: Profile, last_messages: str, last_message: str
     
     data = parse_gemini_json(response.text)
     
-    print(json.dumps(data))
-    print(json.dumps(data["likes"]))
-    print(json.dumps(data["dislikes"]))
-    print(json.dumps(data["loves"]))
-    print(json.dumps(data["hates"]))
-    print(json.dumps(data["profile-info"]))
-    
     profile.likes = json.dumps(data["likes"])
     profile.dislikes = json.dumps(data["dislikes"])
     profile.loves = json.dumps(data["loves"])
