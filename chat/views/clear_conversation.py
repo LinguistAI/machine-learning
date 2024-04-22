@@ -89,6 +89,9 @@ def clear_conversation(request, conversation_id: str):
     
     conversation = Conversation.objects.filter(id=conversation_id).first()
     
+    conversation.lastMessage = ""
+    conversation.save()
+    
     messages = Message.objects.filter(conversation=conversation).all()
     
     messages.delete()

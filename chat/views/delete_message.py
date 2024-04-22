@@ -77,6 +77,11 @@ def delete_message(request, message_id: str):
     
     message = Message.objects.get(id=message_id)
     
+    conversation: Conversation = message.conversation
+        
     message.delete()
+    
+    conversation.lastMessage = Message.objects.filter(conversation=conversation).last().messageText
+    conversation.save()
     
     return generate_success_response("Message deleted successfully", message_id)
