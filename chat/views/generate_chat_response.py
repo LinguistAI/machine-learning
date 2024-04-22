@@ -191,6 +191,9 @@ def generate_chat_response(request, conversation_id: str):
     
     logger.info(f"Prompt feedback: {response.prompt_feedback}")
     data = response.text
+    
+    conversation.lastMessage = data
+    conversation.save()
 
     # Add message to conversation
     user_message = Message.objects.create(conversation=conversation, messageText=message, senderEmail=email, senderType="user")

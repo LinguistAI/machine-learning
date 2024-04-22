@@ -48,6 +48,7 @@ class Conversation(models.Model):
     title = models.CharField(max_length=255)
     bot = models.ForeignKey(ChatBot, on_delete=models.CASCADE, related_name='conversations')
     unknownWords = models.ManyToManyField(UnknownWord, related_name='conversations')
+    lastMessage = models.TextField(default="")
     update_words = models.BooleanField(default=True)
     
     def __str__(self):
