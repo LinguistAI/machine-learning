@@ -11,6 +11,14 @@ def get_profile_prompt(profile, context):
         hates: Detail any topics, activities, or subjects the user has expressed strong negative sentiment towards.\n
         profile-info: Summarize any personal information or characteristics the user has shared, like age, occupation, language proficiency, hobbies, etc., which can be used to tailor future conversations for language learning purposes.\n
         Your output should be in valid json format.\n
+        Example:\n
+        {\n
+            "loves": ["reading", "playing chess"],\n
+            "likes": ["watching movies", "cooking"],\n
+            "dislikes": ["exercising", "cleaning"],\n
+            "hates": ["studying", "doing homework"],\n
+            "profile-info": "The user is a college student who enjoys reading, playing chess, watching movies, and cooking."\n
+        }\n
         User's current profile is:\n""",
         profile,
         "The chat history is:\n",
