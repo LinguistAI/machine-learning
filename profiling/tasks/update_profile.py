@@ -1,5 +1,6 @@
 
 
+import json
 from profiling.models import Profile
 from profiling.prompts.profile_prompt import get_profile_prompt
 import time
@@ -21,16 +22,26 @@ def update_profile_async(profile: Profile, last_messages: str, last_message: str
     response = gemini_model.generate_content(profile_prompt)
     end_time = time.time()
     
+    logger.info("Gemini response: %s", response.text)
+    print(response.text)
+    
     # TODO: Add better logging
     logger.info(f"Time taken to generate Gemini response for profile update: {end_time - start_time}")
     
     data = parse_gemini_json(response.text)
     
-    profile.likes = data['likes']
-    profile.dislikes = data['dislikes']
-    profile.loves = data['loves']
-    profile.hates = data['hates']
-    profile.profileInfo = data['profile-info']
+    print(json.dumps(data))
+    print(json.dumps(data["likes"]))
+    print(json.dumps(data["dislikes"]))
+    print(json.dumps(data["loves"]))
+    print(json.dumps(data["hates"]))
+    print(json.dumps(data["profile-info"]))
+    
+    profile.likes = json.dumps(data["likes"])
+    profile.dislikes = json.dumps(data["dislikes"])
+    profile.loves = json.dumps(data["loves"])
+    profile.hates = json.dumps(data["hates"])
+    profile.profileInfo = json.dumps(data["profile-info"])
     
     profile.save()
     

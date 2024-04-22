@@ -24,7 +24,18 @@ from drf_yasg.utils import swagger_auto_schema
                     "timestamp": "2021-08-30 14:00:00",
                     "status": 200,
                     "msg": "Profile retrieved successfully",
-                    "data": {},
+                    "data": {
+                        "loves": [],
+                        "likes": [],
+                        "dislikes": [
+                            "running"
+                        ],
+                        "hates": [],
+                        "profileInfo": {},
+                        "id": "67dc6128-6ecf-49d9-aaca-731f3670eb12",
+                        "createdDate": "2024-04-18T09:29:50.705974Z",
+                        "updatedDate": "2024-04-22T10:50:34.858758Z"
+                     }
                 }
             }
         ),
