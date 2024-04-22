@@ -40,6 +40,7 @@ class MCTTest(models.Model):
     updatedAt = models.DateTimeField(auto_now=True)
     isCompleted = models.BooleanField(default=False)
     correctPercentage = models.FloatField(default=0.0)
+    unknownWords = models.ManyToManyField('chat.UnknownWord', related_name='mcq_tests')
 
     def __str__(self):
         return "MCQ Test: " + self.email
