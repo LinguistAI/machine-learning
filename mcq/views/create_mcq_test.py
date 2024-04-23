@@ -213,7 +213,7 @@ def create_mcq_test(request):
             question.save()
     
     
-    test.unknownWords = unknown_words
+    test.unknownWords.set(unknown_words)
     test.save()
     
     test_serializer = MCTTestHiddenAnswerSerializer(test)

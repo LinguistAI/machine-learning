@@ -17,6 +17,13 @@ generation_config = {
   "max_output_tokens": 2048,
 }
 
+chat_config = {
+  "temperature": 0.9,
+  "top_p": 1,
+  "top_k": 1,
+  "max_output_tokens": 150,
+}
+
 safety_settings = [
   {
     "category": "HARM_CATEGORY_HARASSMENT",
@@ -36,7 +43,11 @@ safety_settings = [
   },
 ]
 
-gemini_model = genai.GenerativeModel(model_name="gemini-pro",
+gemini_model = genai.GenerativeModel(model_name="gemini-1.0-pro",
+                              generation_config=generation_config,
+                              safety_settings=safety_settings)
+
+chat_model = genai.GenerativeModel(model_name="gemini-1.0-pro",
                               generation_config=generation_config,
                               safety_settings=safety_settings)
 
