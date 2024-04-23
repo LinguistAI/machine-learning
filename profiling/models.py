@@ -19,10 +19,27 @@ class Profile(models.Model):
     profileInfo = models.TextField(null=True)
     email = models.CharField(max_length=255, unique=True)
     birthDate = models.DateField(null=True)
-    englishLevel = models.IntegerField(null=True, validators=[MinValueValidator(1)])
     hobbies = models.ManyToManyField(Hobby, related_name='profiles')
     name = models.CharField(max_length=255, null=True)
+    # English level is an enum
+    # DONT_KNOW - Don't know
+    # BEGINNER - Beginner
+    # INTERMEDIATE - Intermediate
+    # ADVANCED - Advanced
+    # NATIVE - Native
     
+    class EnglishLevel(models.TextChoices):
+        DONT_KNOW = 'DONT_KNOW', 'Don\'t know'
+        BEGINNER = 'BEGINNER', 'Beginner'
+        INTERMEDIATE = 'INTERMEDIATE', 'Intermediate'
+        ADVANCED = 'ADVANCED', 'Advanced'
+        NATIVE = 'NATIVE', 'Native'
+        
+    englishLevel = models.CharField(
+        max_length=255,
+        choices=EnglishLevel.choices,
+        default=EnglishLevel.DONT_KNOW,
+    )
 
     def __str__(self):
         
@@ -46,7 +63,7 @@ class Profile(models.Model):
         if self.birthDate:
             output_format += f"Birth Date: {self.birthDate}\n"
         
-        if self.englishLevel:
+        if self.englishLevel and self.englishLevel != self.EnglishLevel.DONT_KNOW:
             output_format += f"English Level: {self.englishLevel}\n"
         
         if self.hobbies:
