@@ -31,7 +31,9 @@ def update_user_profile(request):
     
     valid_fields = {"birthDate", "englishLevel", "hobbies", "name"}
     if not set(profile_data.keys()).issubset(valid_fields):
-        return generate_error_response(400, "Invalid fields in request")
+        # Show which fields are invalid
+        invalid_fields = set(profile_data.keys()) - valid_fields
+        return generate_error_response(400, "Invalid fields in request data: " + ", ".join(invalid_fields))
     
     hobby_objects = []
     
