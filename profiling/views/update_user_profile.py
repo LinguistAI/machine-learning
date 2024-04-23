@@ -8,6 +8,9 @@ from profiling.serializers import ProfileSerializer
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
+import logging
+
+logger = logging.getLogger(__name__)
 
 # Create Django Rest Endpoint that returns a list of messages for a given conversation
 
@@ -29,11 +32,14 @@ def update_user_profile(request):
     
     profile_data = request.data.get("profile")
     
-    valid_fields = {"birthDate", "englishLevel", "hobbies", "name"}
+    valid_fields = {"id", "birthDate", "englishLevel", "hobbies", "name"}
     if not set(profile_data.keys()).issubset(valid_fields):
         # Show which fields are invalid
         invalid_fields = set(profile_data.keys()) - valid_fields
+        logger.error("Invalid fields in request data: " + ", ".join(invalid_fields))
         return generate_error_response(400, "Invalid fields in request data: " + ", ".join(invalid_fields))
+    
+    profile_data.pop('id', None)
     
     hobby_objects = []
     
