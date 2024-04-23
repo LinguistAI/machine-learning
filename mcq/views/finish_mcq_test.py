@@ -61,6 +61,58 @@ from drf_yasg import openapi
                                 "hasUserAnswered": False
                             }
                         ],
+                        "unknownWords": [
+                            {
+                                "id": "d278ba68-8d01-46a5-8e42-a23b79bfecde",
+                                "listId": "0165ea1d-54f4-4b52-9578-2cdc86b7ec9b",
+                                "email": "mehmet_dogu123@hotmail.com",
+                                "createdDate": "2024-04-18T09:42:46.986405Z",
+                                "updatedDate": "2024-04-18T09:42:46.995996Z",
+                                "word": "clean",
+                                "isActive": True,
+                                "confidenceLevel": 1.0
+                            },
+                            {
+                                "id": "5d4abaaf-80d7-4aef-88f5-9bbc949785da",
+                                "listId": "0165ea1d-54f4-4b52-9578-2cdc86b7ec9b",
+                                "email": "mehmet_dogu123@hotmail.com",
+                                "createdDate": "2024-04-18T09:42:47.032461Z",
+                                "updatedDate": "2024-04-18T09:42:47.034285Z",
+                                "word": "strategy",
+                                "isActive": True,
+                                "confidenceLevel": 1.0
+                            },
+                            {
+                                "id": "dc90fb08-9649-4166-98e7-75cd6400a20d",
+                                "listId": "0165ea1d-54f4-4b52-9578-2cdc86b7ec9b",
+                                "email": "mehmet_dogu123@hotmail.com",
+                                "createdDate": "2024-04-18T09:42:47.043687Z",
+                                "updatedDate": "2024-04-18T09:42:47.044963Z",
+                                "word": "application",
+                                "isActive": True,
+                                "confidenceLevel": 1.0
+                            },
+                            {
+                                "id": "3f4b7fee-ca45-4efc-9bb6-6a7209996b01",
+                                "listId": "0165ea1d-54f4-4b52-9578-2cdc86b7ec9b",
+                                "email": "mehmet_dogu123@hotmail.com",
+                                "createdDate": "2024-04-18T09:42:47.053654Z",
+                                "updatedDate": "2024-04-18T09:42:47.055037Z",
+                                "word": "school",
+                                "isActive": True,
+                                "confidenceLevel": 1.0
+                            },
+                            {
+                                "id": "45f9e2fc-449c-4acf-9885-5a0c54e00c9a",
+                                "listId": "0165ea1d-54f4-4b52-9578-2cdc86b7ec9b",
+                                "email": "mehmet_dogu123@hotmail.com",
+                                "createdDate": "2024-04-18T09:42:47.063605Z",
+                                "updatedDate": "2024-04-18T09:42:47.064992Z",
+                                "word": "work",
+                                "isActive": True,
+                                "confidenceLevel": 1.0
+                            }
+                        ],
                         "createdAt": "2021-08-30 14:00:00",
                         "updatedAt": "2021-08-30 14:00:00",
                         "isCompleted": True,

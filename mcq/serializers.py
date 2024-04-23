@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 
-from chat.serializers import ConversationSerializer
+from chat.serializers import ConversationSerializer, UnknownWordSerializer
 from mcq.models import MCTQuestion, MCTTest
 
 class MCTQuestionSerializer(serializers.ModelSerializer):
@@ -27,14 +27,16 @@ class MCTQuestionHiddenAnswerSerializer(serializers.ModelSerializer):
 
 class MCTTestHiddenAnswerSerializer(serializers.ModelSerializer):
     conversation = ConversationSerializer(read_only=True)
-    questions = MCTQuestionHiddenAnswerSerializer(many=True)
+    questions = MCTQuestionHiddenAnswerSerializer(many=True, read_only=True)
+    unknownWords = UnknownWordSerializer(many=True, read_only=True)
     class Meta:
         model = MCTTest
         fields = '__all__'
 
 class MCTTestSerializer(serializers.ModelSerializer):
     conversation = ConversationSerializer(read_only=True)
-    questions = MCTQuestionSerializer(many=True)
+    questions = MCTQuestionSerializer(many=True, read_only=True)
+    unknownWords = UnknownWordSerializer(many=True, read_only=True)
     class Meta:
         model = MCTTest
         fields = '__all__'
