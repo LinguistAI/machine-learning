@@ -21,7 +21,7 @@ chat_config = {
   "temperature": 0.9,
   "top_p": 1,
   "top_k": 1,
-  "max_output_tokens": 150,
+  "max_output_tokens": 60,
 }
 
 safety_settings = [
