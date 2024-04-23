@@ -13,7 +13,7 @@ from profiling.tasks.update_profile import update_profile_async
 
 from scoring.tasks.score_user_prompt import score_user_prompt
 from utils.http_utils import generate_error_response, generate_success_response
-from utils.gemini_utils import gemini_model
+from utils.gemini_utils import chat_model
 from drf_yasg.utils import swagger_auto_schema
 import time
 from constants.profile_constants import MAX_NO_OF_MESSAGE_CONTEXT
@@ -184,7 +184,7 @@ def generate_chat_response(request, conversation_id: str):
     
     # Log gemini response time
     start_time = time.time()
-    response = gemini_model.generate_content(chat_prompt)
+    response = chat_model.generate_content(chat_prompt)
     end_time = time.time()
     
     logger.info(f"Time taken to generate Gemini response for conversation {conversation_id}: {end_time - start_time}")
