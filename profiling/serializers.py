@@ -1,10 +1,16 @@
 
 
 import json
-from profiling.models import Profile
+from profiling.models import Hobby, Profile
 from rest_framework import serializers
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_serializer_method
+
+
+class HobbySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Hobby
+        fields = "__all__"
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -18,10 +24,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     loves = serializers.SerializerMethodField()
     hates = serializers.SerializerMethodField()
     profileInfo = serializers.SerializerMethodField()
+    hobbies = HobbySerializer(many=True)
     
     class Meta:
         model = Profile
-        fields = ['loves', 'likes', 'dislikes', 'hates', 'profileInfo', 'id', 'createdDate', 'updatedDate']
+        fields = ['loves', 'likes', 'dislikes', 'hates', 'hobbies', 'englishLevel', 'birthDate', 'name', 'profileInfo', 'id', 'createdDate', 'updatedDate']
     
     def get_likes(self, obj: Profile) -> dict:
         return json.loads(obj.likes) if obj.likes else None

@@ -2,7 +2,7 @@ from rest_framework.decorators import api_view
 from chat.models import Conversation, Message
 from chat.serializers import MessageSerializer
 from constants.header_constants import HEADER_USER_EMAIL
-from profiling.models import Profile
+from profiling.models import Hobby, Profile
 from profiling.serializers import ProfileSerializer
 
 from utils.http_utils import generate_error_response, generate_success_response
@@ -29,19 +29,35 @@ def update_user_profile(request):
     
     profile_data = request.data.get("profile")
     
-    # TODO: Support hobbies
+    valid_fields = {"birthDate", "englishLevel", "hobbies", "name"}
+    if not set(profile_data.keys()).issubset(valid_fields):
+        # Show which fields are invalid
+        invalid_fields = set(profile_data.keys()) - valid_fields
+        return generate_error_response(400, "Invalid fields in request data: " + ", ".join(invalid_fields))
+    
+    hobby_objects = []
+    
     if "hobbies" in profile_data:
-        profile_data.pop("hobbies")
+        hobbies = profile_data.pop("hobbies")
+        if not isinstance(hobbies, list):
+            return generate_error_response(400, "Hobbies must be a list")
         
+        for hobby in hobbies:
+            if not isinstance(hobby, str):
+                return generate_error_response(400, "Hobbies must be a list of strings")
+        
+        for hobby in hobbies:
+            hobby_result: tuple[Hobby, bool]= Hobby.objects.get_or_create(name=hobby.lower())
+            hobby_obj = hobby_result[0]
+            hobby_objects.append(hobby_obj)
+            
+    profile_result: tuple[Profile, bool] = Profile.objects.update_or_create(email=email, defaults=profile_data)
+    profile = profile_result[0]
     
-    # Before updating the profile, check if the profile exists
-    profile_exists = Profile.objects.filter(email=email).exists()
-    
-    if not profile_exists:
-        profile = Profile.objects.create(email=email, **profile_data).save()
-    else: 
-        Profile.objects.update(email=email, **profile_data)
-        profile = Profile.objects.filter(email=email).first()
+    if len(hobby_objects) > 0:
+        profile.hobbies.add(*hobby_objects)
+        
+    profile.save()
         
     serializer = ProfileSerializer(profile)
     
