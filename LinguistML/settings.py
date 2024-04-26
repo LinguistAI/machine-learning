@@ -33,6 +33,16 @@ ALLOWED_HOSTS = [
     "*"
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://linguistai.app',
+    'https://www.linguistai.app',
+    'https://linguistai.app/dev/api/v1/ml/',
+    'https://www.linguistai.app/dev/api/v1/ml/',
+    'https://linguistai.app/api/v1/ml/',
+    'https://www.linguistai.app/api/v1/ml/',
+    ]
+
+
 # Application definition
 INSTALLED_APPS = [
     
