@@ -1,4 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
+import time
 from rest_framework.decorators import api_view
 from chat.models import Conversation, UnknownWord
 from constants.header_constants import HEADER_USER_EMAIL
@@ -13,6 +14,8 @@ from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg.utils import swagger_auto_schema
 from math import floor
 from drf_yasg import openapi
+from django.utils import timezone
+
 
 @swagger_auto_schema(
     method='post',
@@ -117,6 +120,9 @@ from drf_yasg import openapi
                         "updatedAt": "2021-08-30 14:00:00",
                         "isCompleted": True,
                         "correctPercentage": 80.00,
+                        "startedAt": "2021-08-30 14:00:00",
+                        "completedAt": "2021-08-30 14:02:32",
+                        "elapsedSeconds": 120.31413
                     }
                 }
             }
@@ -147,7 +153,7 @@ from drf_yasg import openapi
 )
 @api_view(['POST'])
 def finish_mcq_test(request):
-    
+    finish_time = time.time()
     if not request.headers or HEADER_USER_EMAIL not in request.headers:
         return generate_error_response(400, "Authentication is required")
     
@@ -194,6 +200,9 @@ def finish_mcq_test(request):
     correctness_percentage = (float(correct_answers) / float(total_questions)) * 100
     test.correctPercentage = correctness_percentage
     test.isCompleted = True
+    test.completedAt = timezone.now()
+    elapsedTime = test.completedAt - test.startedAt
+    test.elapsedSeconds = elapsedTime.total_seconds()
     test.save()
     
     # Update conversation to update words

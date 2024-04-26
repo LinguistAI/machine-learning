@@ -123,6 +123,9 @@ logger = logging.getLogger(__name__)
                             "updatedAt": "2021-08-30 14:00:00",
                             "isCompleted": True,
                             "correctPercentage": 80.00,
+                            "startedAt": "2021-08-30 14:00:00",
+                            "completedAt": "2021-08-30 14:02:32",
+                            "elapsedSeconds": 120.31413
                         }
                     ]
                 }

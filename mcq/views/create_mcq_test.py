@@ -1,5 +1,4 @@
-import json
-import time
+from django.utils import timezone
 from rest_framework.decorators import api_view
 from chat.models import Conversation, UnknownWord
 from constants.header_constants import HEADER_USER_EMAIL
@@ -117,6 +116,9 @@ from drf_yasg import openapi
                         "updatedAt": "2021-08-30 14:00:00",
                         "isCompleted": False,
                         "correctPercentage": 0.0,
+                        "startedAt": "2021-08-30 14:00:00",
+                        "completedAt": None,
+                        "elapsedSeconds": 0.0
                     }
                 }
             }
@@ -214,6 +216,7 @@ def create_mcq_test(request):
     
     
     test.unknownWords.set(unknown_words)
+    test.startedAt = timezone.now()
     test.save()
     
     test_serializer = MCTTestHiddenAnswerSerializer(test)
