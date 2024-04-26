@@ -202,11 +202,11 @@ def create_mcq_test(request):
                 email=email,
                 word=unknown_word_obj.word,
                 question=json_response["question"],
-                answer=json_response["answer"],
-                option1=json_response["options"][0],
-                option2=json_response["options"][1],
-                option3=json_response["options"][2],
-                option4=json_response["answer"],
+                answer=json_response["answer"].lower(),
+                option1=json_response["options"][0].lower(),
+                option2=json_response["options"][1].lower(),
+                option3=json_response["options"][2].lower(),
+                option4=json_response["answer"].lower(),
             )
             question.randomize_options()
             test.questions.add(question)
