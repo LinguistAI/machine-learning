@@ -1,6 +1,7 @@
 
 from django.urls import path
 
+from mcq.views.use_item import use_item
 from mcq.views.answer_mcq_question import answer_mcq_question
 from mcq.views.create_mcq_test import create_mcq_test
 from mcq.views.get_mcq_info import get_mcq_info
@@ -14,5 +15,7 @@ urlpatterns = [
     path('test/finish', finish_mcq_test),
     path('question/answer', answer_mcq_question),
     path("test/user", get_user_mcq_list),
-    path("test/<str:test_id>", get_mcq_info)
+    path("test/use-item", use_item),
+    path("test/<str:test_id>", get_mcq_info),
+
 ]

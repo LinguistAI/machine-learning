@@ -10,7 +10,7 @@ class MCTQuestionSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = MCTQuestion
-        fields = ['id', 'email', 'question', 'options', 'answer', 'word', 'createdAt', 'updatedAt', 'hasUserAnswered', 'isUserCorrect', 'userAnswer']
+        fields = ['id', 'email', 'question', 'options', 'answer', 'word', 'createdAt', 'updatedAt', 'hasUserAnswered', 'isUserCorrect', 'userAnswer', 'numTriesLeft']
 
     def get_options(self, obj: MCTQuestion):
         return [obj.option1, obj.option2, obj.option3, obj.option4]
@@ -20,7 +20,7 @@ class MCTQuestionHiddenAnswerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MCTQuestion
-        fields = ['id', 'email', 'question', 'options', 'createdAt', 'updatedAt', 'hasUserAnswered', 'isUserCorrect']
+        fields = ['id', 'email', 'question', 'options', 'createdAt', 'updatedAt', 'hasUserAnswered', 'isUserCorrect', 'numTriesLeft']
         
     def get_options(self, obj: MCTQuestion):
         return [obj.option1, obj.option2, obj.option3, obj.option4]
