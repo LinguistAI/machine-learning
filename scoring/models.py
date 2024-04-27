@@ -17,6 +17,7 @@ class WordScore(models.Model):
     rest_of_sentence = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     reasoning = models.TextField()
     unknownWord = models.ForeignKey(UnknownWord, on_delete=models.CASCADE, related_name='wordScores')
+    sentence = models.TextField()
     createdAt = models.DateTimeField(auto_now_add=True)
     updatedAt = models.DateTimeField(auto_now=True)
     
