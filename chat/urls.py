@@ -10,10 +10,12 @@ from chat.views.generate_chat_response import generate_chat_response
 from chat.views.get_conversation_messages import get_conversation_messages
 from chat.views.get_last_conversation_messages import get_last_conversation_messages
 from chat.views.get_all_conversation_messages import get_all_conversation_messages
+from chat.views.get_message_count_aggregate_by_email import get_message_count_aggregate_by_email
+from chat.views.get_message_count_by_date_by_email import get_message_count_by_date_by_email
 from chat.views.get_user_conversations import get_user_conversations
 from chat.views.bots.get_all_bots import get_all_bots
-from chat.views.get_message_count_aggregate import get_message_count_aggregate
-from chat.views.get_message_count_by_date import get_message_count_by_date
+from chat.views.get_message_count_aggregate_by_login import get_message_count_aggregate_by_login
+from chat.views.get_message_count_by_date_by_login import get_message_count_by_date_by_login
 
 urlpatterns = [
     path('chat/send/<str:conversation_id>', generate_chat_response),
@@ -23,8 +25,10 @@ urlpatterns = [
     path('chat/delete/<str:message_id>', delete_message),
     path('delete/<str:conversation_id>', delete_conversation),
     path('clear/<str:conversation_id>', clear_conversation),
-    path('chat/count', get_message_count_by_date, name="get_message_count_by_date"),
-    path('chat/count/aggregate', get_message_count_aggregate, name="get_message_count_aggregate"),
+    path('chat/count', get_message_count_by_date_by_login, name="get_message_count_by_date_by_login"),
+    path('chat/count/aggregate', get_message_count_aggregate_by_login, name="get_message_count_aggregate_by_login"),
+    path('chat/count/<str:user_email>>', get_message_count_by_date_by_email, name="get_message_count_by_date_by_email"),
+    path('chat/count/aggregate/<str:user_email>', get_message_count_aggregate_by_email, name="get_message_count_aggregate_by_email"),
     path("create", create_conversation, name="create_conversation"),
     path("user", get_user_conversations, name="get_user_conversations"),
     path("bots", get_all_bots),
