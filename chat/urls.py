@@ -7,7 +7,7 @@ from chat.views.create_conversation import create_conversation
 from chat.views.delete_conversation import delete_conversation
 from chat.views.delete_message import delete_message
 from chat.views.generate_chat_response import generate_chat_response
-from chat.views.get_conversation_by_id import get_conversation_by_id
+from chat.views.get_conversation_by_id import get_user_conversation_by_id
 from chat.views.get_conversation_messages import get_conversation_messages
 from chat.views.get_last_conversation_messages import get_last_conversation_messages
 from chat.views.get_all_conversation_messages import get_all_conversation_messages
@@ -28,6 +28,6 @@ urlpatterns = [
     path('chat/count/aggregate', get_message_count_aggregate, name="get_message_count_aggregate"),
     path("create", create_conversation, name="create_conversation"),
     path("user", get_user_conversations, name="get_user_conversations"),
-    path("<str:conversation_id>", get_conversation_by_id, name="get_conversation_by_id"),
+    path("user/<str:conversation_id>", get_user_conversation_by_id, name="get_conversation_by_id"),
     path("bots", get_all_bots),
 ]

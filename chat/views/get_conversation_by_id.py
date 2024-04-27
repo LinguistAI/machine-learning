@@ -112,7 +112,7 @@ logger = logging.getLogger(__name__)
     }
 )
 @api_view(['GET'])
-def get_conversation_by_id(request, conversation_id: str):
+def get_user_conversation_by_id(request, conversation_id: str):
     
     # Check the request header for email
     if not request.headers or HEADER_USER_EMAIL not in request.headers:
