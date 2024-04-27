@@ -145,7 +145,8 @@ def score_user_prompt(email: str, unknownWords: list[UnknownWord], message: str)
             sentence_structure=sentence_structure,
             rest_of_sentence=rest_of_sentence,
             reasoning=reasoning,
-            unknownWord=unknown_word
+            unknownWord=unknown_word,
+            sentence=message
         )
         word_score.save()
         word_scores.append(word_score)
