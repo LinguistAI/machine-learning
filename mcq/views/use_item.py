@@ -49,7 +49,8 @@ def use_item(request):
                 "type": item_type,
             }
             response = requests.post(USER_SERVICE_DECREASE_ITEM_QUANTITY_PATH,
-                                     headers=headers)
+                                     headers=headers,
+                                     params=params)
 
             print(response)
             if response.status_code != 200:
