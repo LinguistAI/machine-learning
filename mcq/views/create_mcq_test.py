@@ -51,10 +51,22 @@ from drf_yasg import openapi
                                 "word": "Word",
                                 "question": "Question",
                                 "options": [
-                                    "Randomized Option 1", 
-                                    "Randomized Option 2", 
-                                    "Randomized Option 3", 
-                                    "Randomized Option 4",
+                                    {
+                                        "label": "Randomized Option 1",
+                                        "isEliminated": False
+                                    },
+                                    {
+                                        "label": "Randomized Option 2",
+                                        "isEliminated": False
+                                    },
+                                    {
+                                        "label": "Randomized Option 3",
+                                        "isEliminated": False
+                                    },
+                                    {
+                                        "label": "Randomized Option 4",
+                                        "isEliminated": False
+                                    }
                                 ],
                                 "createdAt": "2021-08-30 14:00:00",
                                 "updatedAt": "2021-08-30 14:00:00",

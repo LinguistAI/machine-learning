@@ -33,14 +33,33 @@ from drf_yasg import openapi
                         "email": "User's email",
                         "word": "Word",
                         "answer": "Correct answer",
-                        "option1": "Randomized Option 1",
-                        "option2": "Randomized Option 2",
-                        "option3": "Randomized Option 3",
-                        "option4": "Randomized Option 4",
+                        "options": [
+                            {
+                                "label": "Randomized Option 1",
+                                "isEliminated": False
+                            },
+                            {
+                                "label": "Randomized Option 2",
+                                "isEliminated": False
+                            },
+                            {
+                                "label": "Randomized Option 3",
+                                "isEliminated": False
+                            },
+                            {
+                                "label": "Randomized Option 4",
+                                "isEliminated": False
+                            }
+                        ],
                         "createdAt": "2021-08-30 14:00:00",
                         "updatedAt": "2021-08-30 14:00:00",
                         "isUserCorrect": True,
-                        "hasUserAnswered": True
+                        "hasUserAnswered": True,
+                        "userAnswer": [
+                                    "User's first answer",
+                                    "User's second answer (if Double Answer item was used)"
+                                ],
+                        "numTriesLeft": 0
                     }
                 }
             }
