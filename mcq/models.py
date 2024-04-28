@@ -9,7 +9,7 @@ class MCTQuestion(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.CharField(max_length=255)
     question = models.CharField(max_length=255)
-    option1 = models.JSONField(default=list)  # TODO: Convert options into a table?? the order?
+    option1 = models.JSONField(default=list)
     option2 = models.JSONField(default=list)
     option3 = models.JSONField(default=list)
     option4 = models.JSONField(default=list)

@@ -4,12 +4,58 @@ from rest_framework.decorators import api_view
 from constants.header_constants import HEADER_USER_EMAIL
 from mcq.models import ITEM_TYPE_MAPPING
 from constants.service_constants import USER_SERVICE_DECREASE_ITEM_QUANTITY_PATH
+from mcq.serializers import getItemSerializer
 
 from utils.http_utils import generate_error_response, generate_success_response, validate_request
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-@swagger_auto_schema()  #TODO
+
+@swagger_auto_schema(
+    method='post',
+    operation_description="Use a quiz item",
+    operation_id="Use a quiz item",
+    operation_summary="Use a quiz item",
+    responses={
+        "200": openapi.Response(
+            description="Item used successfully",
+            examples={
+                "application/json": {
+                    "timestamp": "2024-04-28 16:42:58",
+                    "status": 200,
+                    "msg": "Item used successfully",
+                    "data": {
+                        "id": "a04ed2ef-0e91-4f5d-878c-8abf6649ebd3",
+                        "type": "Double Answer",
+                        "maxNumOfUses": 1,
+                        "usesSoFar": 1,
+                        "question": "52bc3324-400d-4f1b-a5d7-8b446edc9c27"
+                    }
+                }
+            }
+        ),
+        "400": openapi.Response(
+            description="Invalid item type or item of the same type already used for this question",
+            examples={
+                "application/json": {
+                    "timestamp": "2024-04-28 16:43:50",
+                    "status": 400,
+                    "msg": "There is already an item of type 'Double Answer' used for this question"
+                }
+            }
+        ),
+        "500": openapi.Response(
+            description="An error occurred",
+            examples={
+                "application/json": {
+                    "timestamp": "2024-04-28 16:43:50",
+                    "status": 500,
+                    "msg": "An error occurred: {explanation of the error}"
+                }
+            }
+        )
+    }
+)
 @api_view(['POST'])
 @transaction.atomic  # So that item creation is rolled back if the user service returns an error
 def use_item(request):
@@ -57,6 +103,7 @@ def use_item(request):
                 # If there's an error with the user service, raise an exception to rollback the transaction
                 raise ValueError("Error occurred while decreasing item quantity from user")
 
-        return generate_success_response("Item used successfully", "") # TODO add serializer
+            serializer = getItemSerializer(item)
+            return generate_success_response("Item used successfully", serializer.data)
     except Exception as e:
         return generate_error_response(500, f"An error occurred: {str(e)}")
