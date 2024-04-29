@@ -11,6 +11,10 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 
+from concurrent.futures import ThreadPoolExecutor
+from mcq.tasks.request_decrease_item_quantity import request_decrease_item_quantity
+
+
 @swagger_auto_schema(
     method='post',
     operation_description="Use a quiz item",
@@ -88,20 +92,8 @@ def use_item(request):
             item.use()
 
             # Decrease item quantity from user
-            headers = {
-                "UserEmail": email
-            }
-            params = {
-                "type": item_type,
-            }
-            response = requests.post(USER_SERVICE_DECREASE_ITEM_QUANTITY_PATH,
-                                     headers=headers,
-                                     params=params)
-
-            print(response)
-            if response.status_code != 200:
-                # If there's an error with the user service, raise an exception to rollback the transaction
-                raise ValueError("Error occurred while decreasing item quantity from user")
+            executor = ThreadPoolExecutor()
+            executor.submit(request_decrease_item_quantity, email, type)
 
             serializer = getItemSerializer(item)
             return generate_success_response("Item used successfully", serializer.data)
