@@ -1,8 +1,9 @@
 import requests
 from django.db import transaction
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from constants.header_constants import HEADER_USER_EMAIL
-from mcq.models import ITEM_TYPE_MAPPING
+from mcq.models import ITEM_TYPE_MAPPING, MCTQuestion
 from constants.service_constants import USER_SERVICE_DECREASE_ITEM_QUANTITY_PATH
 from mcq.serializers import getItemSerializer
 
@@ -64,7 +65,6 @@ from mcq.tasks.request_decrease_item_quantity import request_decrease_item_quant
 @transaction.atomic  # So that item creation is rolled back if the user service returns an error
 def use_item(request):
     try:
-        # Add check: if the question was already answered do not allow for item use
         # Check the request header for email
         validation_error = validate_request(request, required_data=["type", "questionId"])
         if validation_error:
@@ -77,6 +77,11 @@ def use_item(request):
         # Validate item type
         if item_type not in ITEM_TYPE_MAPPING:
             return generate_error_response(400, f"Invalid item type: {item_type}")
+
+        # Check if the question has already been answered
+        question = get_object_or_404(MCTQuestion, id=question_id)
+        if question.hasUserAnswered:
+            return generate_error_response(400, "The question has already been answered")
 
         # Check if there are other items of the same type tied to the same question
         if ITEM_TYPE_MAPPING[item_type].objects.filter(type=item_type, question_id=question_id).exists():
@@ -92,8 +97,13 @@ def use_item(request):
             item.use()
 
             # Decrease item quantity from user
-            executor = ThreadPoolExecutor()
-            executor.submit(request_decrease_item_quantity, email, type)
+            with ThreadPoolExecutor() as executor:
+                future = executor.submit(request_decrease_item_quantity, email, item_type)
+                # Wait for the thread to finish and retrieve any exceptions that were raised
+                success, msg = future.result()
+                if not success:
+                    # Rollback the transaction if there was an error in the thread execution
+                    raise ValueError(msg)
 
             serializer = getItemSerializer(item)
             return generate_success_response("Item used successfully", serializer.data)
