@@ -1,18 +1,14 @@
-import requests
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from constants.header_constants import HEADER_USER_EMAIL
 from mcq.models import ITEM_TYPE_MAPPING, MCTQuestion
-from constants.service_constants import USER_SERVICE_DECREASE_ITEM_QUANTITY_PATH
 from mcq.serializers import getItemSerializer
 
 from utils.http_utils import generate_error_response, generate_success_response, validate_request
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-
-from concurrent.futures import ThreadPoolExecutor
 from mcq.tasks.request_decrease_item_quantity import request_decrease_item_quantity
 
 
@@ -97,13 +93,9 @@ def use_item(request):
             item.use()
 
             # Decrease item quantity from user
-            with ThreadPoolExecutor() as executor:
-                future = executor.submit(request_decrease_item_quantity, email, item_type)
-                # Wait for the thread to finish and retrieve any exceptions that were raised
-                success, msg = future.result()
-                if not success:
-                    # Rollback the transaction if there was an error in the thread execution
-                    raise ValueError(msg)
+            success, msg = request_decrease_item_quantity(email, item_type)
+            if not success:
+                raise ValueError(msg)
 
             serializer = getItemSerializer(item)
             return generate_success_response("Item used successfully", serializer.data)
