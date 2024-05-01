@@ -14,15 +14,17 @@ import logging
 import rest_framework.request
 
 logger = logging.getLogger(__name__)
-# Create Django Rest Endpoint that returns a list of messages for a given conversation
+
 
 @swagger_auto_schema(
     method="GET",
     operation_description="Get paginated messages for a conversation",
     operation_summary="Get paginated messages",
     manual_parameters=[
-        openapi.Parameter('lastMessageId', openapi.IN_QUERY, description="ID of the last message received", type=openapi.TYPE_STRING),
-        openapi.Parameter('pageSize', openapi.IN_QUERY, description="Number of messages per page", type=openapi.TYPE_INTEGER),
+        openapi.Parameter('page', openapi.IN_QUERY,
+                          description="Page number", type=openapi.TYPE_INTEGER),
+        openapi.Parameter('pageSize', openapi.IN_QUERY,
+                          description="Number of messages per page", type=openapi.TYPE_INTEGER),
     ],
     responses={
         200: openapi.Response(
@@ -33,7 +35,8 @@ logger = logging.getLogger(__name__)
                     "status": 200,
                     "msg": "Data retrieved successfully",
                     "data": {
-                        "content": [MessageSerializer().data],  # Example of serialized data
+                        # Example of serialized data
+                        "content": [MessageSerializer().data],
                         "pageable": {
                             "sort": {"sorted": True, "unsorted": False, "empty": False},
                             "offset": 0,
@@ -65,4 +68,3 @@ def get_conversation_messages(request: rest_framework.request.Request, conversat
     # however, this view uses rest_framework.request.Request instead of the standard Django request object
     # Convert REST request to Django request by accessing the Django _request object
     return MessageListView.as_view()(request._request, conversation_id=conversation_id)
-    
