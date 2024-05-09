@@ -144,7 +144,6 @@ from drf_yasg import openapi
             }
         )
     }
-    
 )
 @api_view(['POST'])
 def create_mcq_test(request):
@@ -198,6 +197,24 @@ def create_mcq_test(request):
     # ],
     # "answer": "Correct Answer (Input Word)"
     # }
+            options=[]
+            
+            # Turn all options to lowercase
+            for option in json_response["options"]:
+                options.append(option.lower())
+            
+            # If there is duplicate option, remove it
+            if json_response["answer"].lower() in options and len(options) > 3:
+                options.remove(json_response["answer"].lower())
+                
+            # If any options are duplicate, remove them
+            if len(set(options)) >= 3:
+                options = list(set(options))
+            
+            # Remove one option if there are more than 3 options
+            if len(options) > 3:
+                options.pop()
+            
             # Create MCTQuestion object
             # Add the answer to options while creating question object
             question = MCTQuestion.objects.create(

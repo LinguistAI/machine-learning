@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from datetime import datetime
 from chat.models import Conversation, Message
-from chat.prompts.chat_prompt import get_chat_prompt
+from chat.prompts.chat_gpt_system_prompt import get_gpt_chat_system_prompt
 from chat.serializers import ConversationSerializer
 from constants.header_constants import HEADER_USER_EMAIL
 from profiling.models import Profile
