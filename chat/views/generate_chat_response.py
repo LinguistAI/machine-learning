@@ -203,8 +203,7 @@ def generate_chat_response(request, conversation_id: str):
     bot_message.save()
     
     # Update profile if needed
-    if message_count > MAX_NO_OF_MESSAGE_CONTEXT:
-        
+    if message_count % MAX_NO_OF_MESSAGE_CONTEXT == 0:
         last_user_messages = Message.objects.filter(conversation=conversation, senderType="user").order_by('createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
         last_user_messages_str = [str(message) for message in last_user_messages]
         last_user_messages_str = "\n".join(last_user_messages_str)
