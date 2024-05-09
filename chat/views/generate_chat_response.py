@@ -204,8 +204,12 @@ def generate_chat_response(request, conversation_id: str):
     
     # Update profile if needed
     if message_count > MAX_NO_OF_MESSAGE_CONTEXT:
+        
+        last_user_messages = Message.objects.filter(conversation=conversation, senderType="user").order_by('createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
+        last_user_messages_str = [str(message) for message in last_user_messages]
+        last_user_messages_str = "\n".join(last_user_messages_str)
         logger.info("Profile _executor for conversation {} executing".format(conversation_id))
-        future_profile = _executor.submit(update_profile_async, profile, previous_messages_str, data)
+        future_profile = _executor.submit(update_profile_async, profile, last_user_messages_str, data)
         future_profile.add_done_callback(handle_profile_future_exception)
         logger.info("Profile _executor for conversation {} executed".format(conversation_id))
     
