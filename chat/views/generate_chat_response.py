@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from datetime import datetime
 from chat.models import Conversation, Message, UnknownWord
-from chat.prompts.chat_prompt import get_chat_prompt
+from chat.prompts.chat_gpt_system_prompt import get_gpt_chat_system_prompt
 from chat.tasks.update_quest_on_chat import update_quest_on_chat
 from chat.tasks.update_unknown_words import update_unknown_words
 from chat.tasks.update_xp_on_chat import update_xp_on_chat
@@ -18,6 +18,7 @@ from drf_yasg.utils import swagger_auto_schema
 import time
 from constants.profile_constants import MAX_NO_OF_MESSAGE_CONTEXT
 from concurrent.futures import ThreadPoolExecutor
+from utils.chatgpt_utils import generate_gpt_chat_response
 
 
 from drf_yasg import openapi
@@ -178,19 +179,21 @@ def generate_chat_response(request, conversation_id: str):
     bot_profile = conversation_bot.prompt
     bot_difficulty = conversation_bot.difficultyLevel
     
-    chat_prompt = get_chat_prompt(bot_profile, bot_difficulty, previous_messages_str, profile, message, unknown_words_list)
+    system_prompt = get_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
     
     # logger.info(f"Chat prompt generated for conversation {conversation_id}: {chat_prompt}")
     
     # Log gemini response time
     start_time = time.time()
-    response = chat_model.generate_content(chat_prompt)
+    response = generate_gpt_chat_response(system_prompt, previous_messages)
     end_time = time.time()
     
-    logger.info(f"Time taken to generate Gemini response for conversation {conversation_id}: {end_time - start_time}")
+    logger.info(f"Time taken to generate ChatGPT response for conversation {conversation_id}: {end_time - start_time}")
     
-    logger.info(f"Prompt feedback: {response.prompt_feedback}")
-    data = response.text
+    print("Response", response)
+    
+    # logger.info(f"Prompt feedback: {response.prompt_feedback}")
+    data = response
     
     conversation.lastMessage = data
     conversation.save()

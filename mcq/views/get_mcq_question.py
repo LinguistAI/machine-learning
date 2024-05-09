@@ -1,14 +1,10 @@
-import json
-import time
 from rest_framework.decorators import api_view
 from constants.header_constants import HEADER_USER_EMAIL
-from mcq.prompts.create_mcq_prompt import create_mcq_prompt
 
 from mcq.tasks.create_mcq_question import create_mcq_question
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from utils.gemini_utils import gemini_model
 
 
 # Create Django Rest Endpoint that returns a list of messages for a given conversation
