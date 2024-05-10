@@ -21,17 +21,20 @@ def convert_senderType_to_role(senderType: str) -> str:
         logger.error(f"Invalid senderType: {senderType}")
         return "user"
 
-def generate_gpt_chat_response(system_prompt, chat_history: list[Message], json=False):
+def generate_gpt_chat_response(system_prompt, chat_history: list[Message], last_message=None):
     try:
         messages = [{"role": "system", "content": system_prompt}]
-        
         if chat_history:
             for message in chat_history:
                 messages.append({
                     "role": convert_senderType_to_role(message.senderType), 
                     "content": message.messageText
                     })
-            
+            if last_message:
+                messages.append({
+                    "role": "user",
+                    "content": last_message
+                })
         start_time = time.time()
         response = client.chat.completions.create(
             model="gpt-4-turbo",
@@ -40,14 +43,13 @@ def generate_gpt_chat_response(system_prompt, chat_history: list[Message], json=
             max_tokens=150,
             n=1,
         )
-        print("Response1", response)
         end_time = time.time()
-        print("Response2", response.choices[0].message.content)
+        logger.info("ChatGPT response is " +  response.choices[0].message.content)
         logger.info(f"Time taken to generate response: {end_time - start_time}")
         return response.choices[0].message.content
     except Exception as e:
         logger.error(f"Failed to generate response: {str(e)}")
-        logger.error(e)
+        logger.exception(e)
         return None
 
 

@@ -146,7 +146,10 @@ def generate_chat_response(request, conversation_id: str):
     
     conversation = Conversation.objects.filter(id=conversation_id).first()
     message_count = Message.objects.filter(conversation=conversation).count()
-    previous_messages = Message.objects.filter(conversation=conversation).order_by('createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
+    previous_messages = Message.objects.filter(conversation=conversation).order_by('-createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
+    
+    # Reverse the previous messages
+    previous_messages = previous_messages[::-1]
     
     # Get conversation unknown words
     unknown_words: list[UnknownWord] = conversation.unknownWords.all()
@@ -185,18 +188,18 @@ def generate_chat_response(request, conversation_id: str):
     
     # Log gemini response time
     start_time = time.time()
-    response = generate_gpt_chat_response(system_prompt, previous_messages)
+    response = generate_gpt_chat_response(system_prompt, previous_messages, message)
     end_time = time.time()
     
     logger.info(f"Time taken to generate ChatGPT response for conversation {conversation_id}: {end_time - start_time}")
     
-    print("Response", response)
+    logger.info("ChatGPT Chat response is " + response)
     
-    # logger.info(f"Prompt feedback: {response.prompt_feedback}")
     data = response
     
-    conversation.lastMessage = data
-    conversation.save()
+    if data:
+        conversation.lastMessage = data
+        conversation.save()
 
     # Add message to conversation
     user_message = Message.objects.create(conversation=conversation, messageText=message, senderEmail=email, senderType="user")
@@ -207,7 +210,8 @@ def generate_chat_response(request, conversation_id: str):
     
     # Update profile if needed
     if message_count % MAX_NO_OF_MESSAGE_CONTEXT == 0:
-        last_user_messages = Message.objects.filter(conversation=conversation, senderType="user").order_by('createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
+        last_user_messages = Message.objects.filter(conversation=conversation, senderType="user").order_by('-createdDate')[:MAX_NO_OF_MESSAGE_CONTEXT]
+        last_user_messages = last_user_messages[::-1]
         last_user_messages_str = [str(message) for message in last_user_messages]
         last_user_messages_str = "\n".join(last_user_messages_str)
         logger.info("Profile _executor for conversation {} executing".format(conversation_id))
