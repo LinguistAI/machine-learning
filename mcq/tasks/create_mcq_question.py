@@ -14,7 +14,7 @@ def create_mcq_question(word: str):
     
     # Log gemini response time
     start_time = time.time()
-    response = generate_gpt_chat_response(prompt, None)
+    response = generate_gpt_chat_response(prompt, None, None)
     end_time = time.time()
     
     logger.info(f"Time taken to generate Gemini response for MCQ: {end_time - start_time}")
