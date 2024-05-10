@@ -198,8 +198,8 @@ def create_mcq_test(request):
         email=email
     )
     
-    for unknown_word_obj in unknown_words:
-        for _ in range(MCQ_TEST_QUESTION_PER_WORD):
+    for _ in range(MCQ_TEST_QUESTION_PER_WORD):
+        for unknown_word_obj in unknown_words:
             json_response = create_mcq_question(unknown_word_obj.word)
             
             # JSON Response is as follows
