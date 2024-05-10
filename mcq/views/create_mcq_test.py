@@ -1,4 +1,5 @@
 import json
+import random
 import time
 from django.utils import timezone
 from rest_framework.decorators import api_view
@@ -211,6 +212,19 @@ def create_mcq_test(request):
     # ],
     # "answer": "Correct Answer (Input Word)"
     # }
+            FILL_WORDS = [
+                "linguist",
+                "generation",
+                "recreation",
+                "generative",
+                "constructive",
+                "valid",
+                "questionable",
+                "inquiry",
+                "inquisitive",
+                "skeptical",
+                "curious",
+            ]
             options=[]
             
             # Turn all options to lowercase
@@ -218,7 +232,7 @@ def create_mcq_test(request):
                 options.append(option.lower())
             
             # If there is duplicate option, remove it
-            if json_response["answer"].lower() in options and len(options) > 3:
+            if json_response["answer"].lower() in options:
                 options.remove(json_response["answer"].lower())
                 
             # If any options are duplicate, remove them
@@ -226,8 +240,15 @@ def create_mcq_test(request):
                 options = list(set(options))
             
             # Remove one option if there are more than 3 options
-            if len(options) > 3:
+            while len(options) > 3:
                 options.pop()
+                
+            while len(options) < 3:
+                # Get random word from FILL_WORDS
+                random_word = random.choice(FILL_WORDS)
+                FILL_WORDS.remove(random_word)
+                options.append(random_word)
+                options = list(set(options))
             
             # Create MCTQuestion object
             # Add the answer to options while creating question object
@@ -236,9 +257,9 @@ def create_mcq_test(request):
                 word=unknown_word_obj.word,
                 question=json_response["question"],
                 answer=json_response["answer"].lower(),
-                option1={"label": json_response["options"][0].lower(), "isEliminated": False},
-                option2={"label": json_response["options"][1].lower(), "isEliminated": False},
-                option3={"label": json_response["options"][2].lower(), "isEliminated": False},
+                option1={"label": options[0].lower(), "isEliminated": False},
+                option2={"label": options[1].lower(), "isEliminated": False},
+                option3={"label": options[2].lower(), "isEliminated": False},
                 option4={"label": json_response["answer"].lower(), "isEliminated": False},
             )
             question.randomize_options()
