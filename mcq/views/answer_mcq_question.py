@@ -103,9 +103,13 @@ def answer_mcq_question(request):
         if not question:
             return generate_error_response(404, "Question not found")
 
+        # Check if user has already answered this question
+        if question.hasUserAnswered:
+            return generate_error_response(400, "This question was already answered.")
+
         # Check if the user's answer is not an eliminated option
         if user_answer in question.get_eliminated_options():
-            return generate_error_response(400, "User answer is an eliminated option")
+            return generate_error_response(400, "Given answer is an eliminated option.")
 
         # Append user's answer to the answer array in the question
         if question.userAnswer is None:
