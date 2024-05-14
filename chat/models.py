@@ -35,7 +35,7 @@ class ChatBot(models.Model):
     profileImage = models.TextField()
     prompt = models.TextField()
     voiceCharacteristics = models.TextField()
-    language = models.TextField('ENG')
+    language = models.TextField(default="ENG")
     difficultyLevel = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(100)])
 
     def __str__(self):

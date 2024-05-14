@@ -1,4 +1,4 @@
-def get_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list: list[str]):
+def get_spanish_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list: list[str]):
 
     if not profile:
         profile = "No hay perfil disponible"

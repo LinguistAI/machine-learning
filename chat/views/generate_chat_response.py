@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view
 from datetime import datetime
 from chat.models import Conversation, Message, UnknownWord
 from chat.prompts.chat_gpt_system_prompt import get_gpt_chat_system_prompt
-from chat.prompts.spanish_chat_gpt_system_prompt import spanish_get_gpt_chat_system_prompt
+from chat.prompts.spanish_chat_gpt_system_prompt import get_spanish_gpt_chat_system_prompt
 from chat.tasks.update_quest_on_chat import update_quest_on_chat
 from chat.tasks.update_unknown_words import update_unknown_words
 from chat.tasks.update_xp_on_chat import update_xp_on_chat
@@ -185,7 +185,9 @@ def generate_chat_response(request, conversation_id: str):
     system_prompt = ''
 
     if conversation_bot.language == 'ESP':
-        system_prompt = spanish_get_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
+        system_prompt = get_spanish_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
+    elif conversation_bot.language == 'ENG':
+        system_prompt = get_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
     else:
         system_prompt = get_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
 
