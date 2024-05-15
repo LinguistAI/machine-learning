@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'profiling',
     'scoring',
     'mcq',
+    'feature_flags',
 ]
 
 SWAGGER_SETTINGS = {

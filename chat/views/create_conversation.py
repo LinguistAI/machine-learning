@@ -5,6 +5,7 @@ from chat.serializers import ConversationSerializer
 from chat.tasks.update_unknown_words import update_unknown_words
 from constants.header_constants import HEADER_USER_EMAIL
 
+from feature_flags.check_existing_features import check_existing_features
 from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg.utils import swagger_auto_schema
 from concurrent.futures import ThreadPoolExecutor
@@ -19,6 +20,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+
+_executor = ThreadPoolExecutor(max_workers=3)
+
+
 def handle_future_exception(future, future_name: str):
     try:
         # This will re-raise any exception that was caught during the execution of the task.
@@ -30,6 +35,10 @@ def handle_future_exception(future, future_name: str):
 
 def handle_unknown_words_future_exception(future):
     handle_future_exception(future, "unknown_words")
+    
+
+def handle_check_existing_features_future_exception(future):
+    handle_future_exception(future, "check_existing_features")
 
 
 @swagger_auto_schema(
@@ -181,13 +190,16 @@ def create_conversation(request: HttpRequest):
 
     conversation = Conversation.objects.create(
         userEmail=email, bot=bot, title=title)
-
-    _executor = ThreadPoolExecutor()
-
-    future_unknown_words = _executor.submit(
-        update_unknown_words, conversation.id, email)
-    future_unknown_words.add_done_callback(
-        handle_unknown_words_future_exception)
+    
+    logger.info("Updating unknown words for conversation {}".format(conversation.id))
+    future_unknown_words = _executor.submit(update_unknown_words, conversation.id, email)
+    future_unknown_words.add_done_callback(handle_unknown_words_future_exception)
+    logger.info("Unknown words updated for conversation {}".format(conversation.id))
+    
+    logger.info("Checking existing features for {}".format(email))
+    future_existing_features = _executor.submit(check_existing_features, email)
+    future_existing_features.add_done_callback(handle_check_existing_features_future_exception)
+    logger.info("Existing features checked for {}".format(email))
 
     serializer = ConversationSerializer(conversation)
 
