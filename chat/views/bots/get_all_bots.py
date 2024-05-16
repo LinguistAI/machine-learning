@@ -14,6 +14,15 @@ from drf_yasg.utils import swagger_auto_schema
     operation_description="Get all chatbots",
     operation_id="Get all chatbots",
     operation_summary="Get all chatbots",
+    manual_parameters=[
+        openapi.Parameter(
+            'language',
+            openapi.IN_QUERY,
+            description="Filter chatbots by language",
+            type=openapi.TYPE_STRING,
+            default='ENG'
+        )
+    ],
     responses={
         "200": openapi.Response(
             description="Chatbots retrieved successfully",
@@ -38,10 +47,12 @@ def get_all_bots(request):
     if not email:
         return generate_error_response(400, "Authentication is required")
     
-    # Get all ChatBot objects
-    chatbot = ChatBot.objects.all()
+    # Get the language query parameter, default to 'ENG'
+    language = request.query_params.get('language', 'ENG')
     
-    serializer = ChatBotSerializer(chatbot, many=True)
+    # Filter ChatBot objects by language
+    chatbots = ChatBot.objects.filter(language=language)
+    
+    serializer = ChatBotSerializer(chatbots, many=True)
     
     return generate_success_response("All chatbots retrieved successfully", serializer.data)
-    

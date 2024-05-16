@@ -28,6 +28,15 @@ logger = logging.getLogger(__name__)
     operation_description="Get all conversations for the current user",
     operation_id="Get all conversations for the current user",
     operation_summary="Get all conversations for the current user",
+    manual_parameters=[
+        openapi.Parameter(
+            'language',
+            openapi.IN_QUERY,
+            description="Filter conversations by the bot's language",
+            type=openapi.TYPE_STRING,
+            default='ENG'
+        )
+    ],
     responses={
         "200": openapi.Response(
             description="Conversations gathered successfully",
@@ -124,8 +133,11 @@ def get_user_conversations(request):
     if not email:
         return generate_error_response(400, "Authentication is required")
     
+    # Get the language query parameter, default to 'ENG'
+    language = request.query_params.get('language', 'ENG')
+
     # Get all conversations for the user
-    conversations = Conversation.objects.filter(userEmail=email).select_related('bot')
+    conversations = Conversation.objects.filter(userEmail=email, bot__language=language).select_related('bot')
     
     serializer = ConversationSerializer(conversations, many=True)
     
