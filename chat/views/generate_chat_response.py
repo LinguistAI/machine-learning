@@ -5,6 +5,11 @@ from datetime import datetime
 from chat.models import Conversation, Message, UnknownWord
 from chat.prompts.chat_gpt_system_prompt import get_gpt_chat_system_prompt
 from chat.prompts.spanish_chat_gpt_system_prompt import get_spanish_gpt_chat_system_prompt
+from chat.prompts.turkish_chat_gpt_system_prompt import get_turkish_gpt_chat_system_prompt
+from chat.prompts.german_chat_gpt_system_prompt import get_german_gpt_chat_system_prompt
+from chat.prompts.italian_chat_gpt_system_prompt import get_italian_gpt_chat_system_prompt
+from chat.prompts.french_chat_gpt_system_prompt import get_french_gpt_chat_system_prompt
+from chat.prompts.korean_chat_gpt_system_prompt import get_korean_gpt_chat_system_prompt
 from chat.tasks.update_quest_on_chat import update_quest_on_chat
 from chat.tasks.update_unknown_words import update_unknown_words
 from chat.tasks.update_xp_on_chat import update_xp_on_chat
@@ -184,10 +189,20 @@ def generate_chat_response(request, conversation_id: str):
     bot_difficulty = conversation_bot.difficultyLevel
     system_prompt = ''
 
-    if conversation_bot.language == 'ESP':
-        system_prompt = get_spanish_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
-    elif conversation_bot.language == 'ENG':
+    if conversation_bot.language == 'ENG':
         system_prompt = get_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
+    elif conversation_bot.language == 'ESP':
+        system_prompt = get_spanish_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
+    elif conversation_bot.language == 'TUR':
+        system_prompt = get_turkish_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
+    elif conversation_bot.language == 'GER':
+        system_prompt = get_german_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
+    elif conversation_bot.language == 'ITA':
+        system_prompt = get_italian_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
+    elif conversation_bot.language == 'FRA':
+        system_prompt = get_french_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
+    elif conversation_bot.language == 'KOR':
+        system_prompt = get_korean_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
     else:
         system_prompt = get_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
 
