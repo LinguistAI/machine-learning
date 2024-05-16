@@ -1,22 +1,10 @@
-from django.shortcuts import render
-from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from datetime import datetime
-from chat.models import Conversation, Message
-from chat.prompts.chat_prompt import get_chat_prompt
-from chat.serializers import ConversationSerializer
 from constants.header_constants import HEADER_USER_EMAIL
 from mcq.models import MCTTest
 from mcq.serializers import MCTTestHiddenAnswerSerializer, MCTTestSerializer
-from profiling.models import Profile
-from profiling.tasks.update_profile import update_profile_async
 
 from utils.http_utils import generate_error_response, generate_success_response
-from utils.gemini_utils import gemini_model
 from drf_yasg.utils import swagger_auto_schema
-import time
-from constants.profile_constants import MAX_NO_OF_MESSAGE_CONTEXT
-from concurrent.futures import ThreadPoolExecutor
 
 
 from drf_yasg import openapi

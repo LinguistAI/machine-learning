@@ -5,16 +5,14 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 
-
-
 class DefaultPagination(PageNumberPagination):
     page_size = 5
-    page_size_query_param = 'pageSize'  # Allow client to override the page size via query parameter
+    page_size_query_param = 'pageSize'
+    page_query_param = 'page'
     max_page_size = 10
-    
-    
+
     def get_paginated_response(self, data):
-        
+
         first = not self.page.has_previous()
         last = not self.page.has_next()
         number = self.page.number

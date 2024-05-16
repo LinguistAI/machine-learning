@@ -1,4 +1,3 @@
-
 # GET PROJECT_MODE from environment variable
 import os
 
@@ -13,3 +12,4 @@ USER_SERVICE_INCREASE_CONFIDENCE_PATH = USER_SERVICE_BASE_PATH + "/wordbank/incr
 USER_SERVICE_DECREASE_CONFIDENCE_PATH = USER_SERVICE_BASE_PATH + "/wordbank/decrease-confidence"
 USER_SERVICE_XP_MESSAGE_PATH = USER_SERVICE_BASE_PATH + "/user-xp/message"
 USER_SERVICE_QUEST_MESSAGE_PATH = USER_SERVICE_BASE_PATH + "/quest/process/send-message"
+USER_SERVICE_DECREASE_ITEM_QUANTITY_PATH = USER_SERVICE_BASE_PATH + "/store/user-items/decrease-quantity"

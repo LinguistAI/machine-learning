@@ -2,8 +2,8 @@ from rest_framework.decorators import api_view
 from constants.header_constants import HEADER_USER_EMAIL
 from mcq.models import MCTQuestion
 
-from mcq.serializers import MCTQuestionSerializer
-from utils.http_utils import generate_error_response, generate_success_response
+from mcq.serializers import MCTQuestionSerializer, MCTQuestionHiddenAnswerSerializer
+from utils.http_utils import generate_error_response, generate_success_response, validate_request
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
@@ -33,14 +33,33 @@ from drf_yasg import openapi
                         "email": "User's email",
                         "word": "Word",
                         "answer": "Correct answer",
-                        "option1": "Randomized Option 1",
-                        "option2": "Randomized Option 2",
-                        "option3": "Randomized Option 3",
-                        "option4": "Randomized Option 4",
+                        "options": [
+                            {
+                                "label": "Randomized Option 1",
+                                "isEliminated": False
+                            },
+                            {
+                                "label": "Randomized Option 2",
+                                "isEliminated": False
+                            },
+                            {
+                                "label": "Randomized Option 3",
+                                "isEliminated": False
+                            },
+                            {
+                                "label": "Randomized Option 4",
+                                "isEliminated": False
+                            }
+                        ],
                         "createdAt": "2021-08-30 14:00:00",
                         "updatedAt": "2021-08-30 14:00:00",
                         "isUserCorrect": True,
-                        "hasUserAnswered": True
+                        "hasUserAnswered": True,
+                        "userAnswer": [
+                                    "User's first answer",
+                                    "User's second answer (if Double Answer item was used)"
+                                ],
+                        "numTriesLeft": 0
                     }
                 }
             }
@@ -69,44 +88,60 @@ from drf_yasg import openapi
 )            
 @api_view(['POST'])
 def answer_mcq_question(request):
-    
-    if not request.headers or HEADER_USER_EMAIL not in request.headers:
-        return generate_error_response(400, "Authentication is required")
-    
-    email = request.headers.get(HEADER_USER_EMAIL)
-    if not email:
-        return generate_error_response(400, "Authentication is required")
-    
-    # Check request data for message
-    if not request.data or "questionId" not in request.data:
-        return generate_error_response(400, "Question ID is required")
+    try:
+        # Check the request header for email
+        validation_error = validate_request(request, required_data=["questionId", "answer"])
+        if validation_error:
+            return validation_error
 
-    # Get message from request body
-    questionId = request.data.get("questionId")
-    if not questionId:
-        return generate_error_response(400, "Question ID is required")
-    
-    if "answer" not in request.data:
-        return generate_error_response(400, "Answer is required")
-    
-    user_answer = request.data.get("answer")
-    if not user_answer:
-        return generate_error_response(400, "Answer is required")
+        email = request.headers.get(HEADER_USER_EMAIL)
+        question_id = request.data.get("questionId")
+        user_answer = request.data.get("answer")
 
-    question_exists = MCTQuestion.objects.filter(id=questionId).exists()
-    
-    if not question_exists:
-        return generate_error_response(404, "Question not found")
-    
-    question = MCTQuestion.objects.get(id=questionId)
+        # Check if the question exists
+        question = MCTQuestion.objects.filter(id=question_id).first()
+        if not question:
+            return generate_error_response(404, "Question not found")
 
-    # Update the question with user's answer
-    # compare the user's answer with the correct answer as string
-    question.userAnswer = user_answer
-    question.isUserCorrect = (str(user_answer).lower() == question.answer.lower())
-    question.hasUserAnswered = True
-    question.save()
+        # Check if user has already answered this question
+        if question.hasUserAnswered:
+            return generate_error_response(400, "This question was already answered.")
 
-    question_serializer = MCTQuestionSerializer(question)
-    
-    return generate_success_response("Answer submitted successfully", question_serializer.data)
+        # Check if the user's answer is not an eliminated option
+        if user_answer in question.get_eliminated_options():
+            return generate_error_response(400, "Given answer is an eliminated option.")
+
+        # Append user's answer to the answer array in the question
+        if question.userAnswer is None:
+            question.userAnswer = []
+        question.userAnswer.append(user_answer)
+
+        isUserCorrect = (str(user_answer).lower() == question.answer.lower())
+
+        # Check if number of tries left is more than 1 and answer is incorrect
+        if question.numTriesLeft > 1 and not isUserCorrect:
+            question.hasUserAnswered = False
+            question.numTriesLeft -= 1
+
+            # Iterate over option fields and update isEliminated if necessary
+            option_fields = ['option1', 'option2', 'option3', 'option4']
+            for field_name in option_fields:
+                options = getattr(question, field_name)
+                for option in options:
+                    if option['value'] == user_answer:
+                        option['isEliminated'] = True
+                        break
+
+            question_serializer = MCTQuestionHiddenAnswerSerializer(question)
+        else:
+            question.hasUserAnswered = True
+            question.isUserCorrect = isUserCorrect
+            question.numTriesLeft = 0
+            question_serializer = MCTQuestionSerializer(question)
+
+        question.save()
+
+        return generate_success_response("Answer submitted successfully", question_serializer.data)
+
+    except Exception as e:
+        return generate_error_response(500, f"An error occurred: {str(e)}")
