@@ -28,7 +28,7 @@ urlpatterns = [
     path('clear/<str:conversation_id>', clear_conversation),
     path('chat/count', get_message_count_by_date_by_login, name="get_message_count_by_date_by_login"),
     path('chat/count/aggregate', get_message_count_aggregate_by_login, name="get_message_count_aggregate_by_login"),
-    path('chat/count/<str:user_email>>', get_message_count_by_date_by_email, name="get_message_count_by_date_by_email"),
+    path('chat/count/<str:user_email>', get_message_count_by_date_by_email, name="get_message_count_by_date_by_email"),
     path('chat/count/aggregate/<str:user_email>', get_message_count_aggregate_by_email, name="get_message_count_aggregate_by_email"),
     path("create", create_conversation, name="create_conversation"),
     path("user", get_user_conversations, name="get_user_conversations"),

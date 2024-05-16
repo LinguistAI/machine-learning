@@ -9,6 +9,7 @@ from chat.tasks.update_quest_on_chat import update_quest_on_chat
 from chat.tasks.update_unknown_words import update_unknown_words
 from chat.tasks.update_xp_on_chat import update_xp_on_chat
 from constants.header_constants import HEADER_USER_EMAIL
+from feature_flags.models import FeatureCategory, UserFeature
 from profiling.models import Profile
 from profiling.tasks.update_profile import update_profile_async
 
@@ -158,12 +159,11 @@ def generate_chat_response(request, conversation_id: str):
     unknown_words_list = [word.word for word in unknown_words]
 
     # If unknown words do not exist, update them by sending a async request to the unknown words endpoint
-    if conversation.update_words or not unknown_words:
+    if conversation.update_words:
         unknown_words_list = None
         logger.info("Attempting to update words for {} conversation".format(conversation_id))
         future_unknown_words = _executor.submit(update_unknown_words, conversation_id, email)
         future_unknown_words.add_done_callback(handle_unknown_words_future_exception)
-
     else:
         logger.info("Unknown words exist for {} conversation".format(conversation_id))
 
@@ -192,10 +192,21 @@ def generate_chat_response(request, conversation_id: str):
         system_prompt = get_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unknown_words_list)
 
     # logger.info(f"Chat prompt generated for conversation {conversation_id}: {chat_prompt}")
-
+    chat_model_feature_exists = FeatureCategory.objects.filter(name="ChatModel").exists()
+    user_features = UserFeature.objects.filter(email=email)
+    
+    chat_model = "gpt-4o"
+    
+    # Get UserFeature object for ChatModel
+    if chat_model_feature_exists:
+        for user_feature in user_features:
+            if user_feature.feature.category.name == "ChatModel":
+                chat_model = user_feature.feature.name
+                break
+        
     # Log gemini response time
     start_time = time.time()
-    response = generate_gpt_chat_response(system_prompt, previous_messages, message)
+    response = generate_gpt_chat_response(system_prompt, previous_messages, chat_model, message)
     end_time = time.time()
 
     logger.info(f"Time taken to generate ChatGPT response for conversation {conversation_id}: {end_time - start_time}")

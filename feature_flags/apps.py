@@ -1,0 +1,9 @@
+from django.apps import AppConfig
+
+
+class FeatureFlagsConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'feature_flags'
+
+    def ready(self):
+        import feature_flags.signals  # Import the signals module
