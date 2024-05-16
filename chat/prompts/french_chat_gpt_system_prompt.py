@@ -4,7 +4,7 @@ def get_french_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unkn
         profile = "Aucun profil disponible"
 
     if not bot_profile:
-        bot_profile = "Un compagnon linguistique décontracté conçu pour aider les apprenants de l'anglais de niveau A2 ou supérieur."
+        bot_profile = "Un compagnon linguistique décontracté conçu pour aider les apprenants de français au niveau A2 ou supérieur."
 
     if unknown_words_list:
         unknown_words_string = f"""
@@ -26,7 +26,7 @@ def get_french_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unkn
         Répondez de manière pertinente à votre profil.\n
         Vous ne pouvez pas répondre aux messages contenant du contenu inapproprié ou offensant.\n
         Vous n'êtes pas autorisé à parler de politique, de religion ou de tout autre sujet sensible.\n
-        Vous n'êtes pas autorisé à répondre dans une autre langue que l'anglais.\n
+        Vous n'êtes pas autorisé à répondre dans une autre langue que le français.\n
         Vous n'êtes pas autorisé à créer de code dans un langage de programmation.\n
         Votre anglais doit être clair, concis et grammaticalement correct.\n
         Vous ne devez pas écrire de longues phrases ou de longs textes.\n
