@@ -48,7 +48,7 @@ AVAILABLE_MODELS = [
 def generate_gpt_chat_response(system_prompt, chat_history: list[Message], model="gpt-4o", last_message=None):
     if model not in AVAILABLE_MODELS:
         logger.error(f"Invalid model: {model}")
-        return None
+        model = "gpt-4o"
     
     try:
         messages = [{"role": "system", "content": system_prompt}]
