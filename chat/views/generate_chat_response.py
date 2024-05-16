@@ -159,7 +159,7 @@ def generate_chat_response(request, conversation_id: str):
     unknown_words_list = [word.word for word in unknown_words]
 
     # If unknown words do not exist, update them by sending a async request to the unknown words endpoint
-    if conversation.update_words:
+    if conversation.update_words or not conversation.unknownWords:
         unknown_words_list = None
         logger.info("Attempting to update words for {} conversation".format(conversation_id))
         future_unknown_words = _executor.submit(update_unknown_words, conversation_id, email)

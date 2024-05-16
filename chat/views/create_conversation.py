@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 
 
-_executor = ThreadPoolExecutor(max_workers=3)
+_executor = ThreadPoolExecutor()
 
 
 def handle_future_exception(future, future_name: str):
@@ -191,10 +191,10 @@ def create_conversation(request: HttpRequest):
     conversation = Conversation.objects.create(
         userEmail=email, bot=bot, title=title)
     
-    logger.info("Updating unknown words for conversation {}".format(conversation.id))
-    future_unknown_words = _executor.submit(update_unknown_words, conversation.id, email)
-    future_unknown_words.add_done_callback(handle_unknown_words_future_exception)
-    logger.info("Unknown words updated for conversation {}".format(conversation.id))
+    # logger.info("Updating unknown words for conversation {}".format(conversation.id))
+    # future_unknown_words = _executor.submit(update_unknown_words, conversation.id, email)
+    # future_unknown_words.add_done_callback(handle_unknown_words_future_exception)
+    # logger.info("Unknown words updated for conversation {}".format(conversation.id))
     
     logger.info("Checking existing features for {}".format(email))
     future_existing_features = _executor.submit(check_existing_features, email)
