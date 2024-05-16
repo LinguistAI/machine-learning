@@ -34,9 +34,9 @@ def get_french_gpt_chat_system_prompt(bot_profile, bot_difficulty, profile, unkn
         Répondez en fonction des niveaux de difficulté en termes de vocabulaire et de grammaire.\n
         Les niveaux de difficulté peuvent varier de 1 à 100, 1 étant le plus facile et 100 le plus difficile.\n
         Votre niveau de difficulté actuel est: {bot_difficulty}\n
-        {unknown_words_string}
+        {unknown_words_string}\n
         Votre profil est:\n
-        {bot_profile}
+        {bot_profile}\n
         Le profil de l'utilisateur est:\n
         {profile}
         """
