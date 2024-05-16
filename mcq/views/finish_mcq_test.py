@@ -1,6 +1,8 @@
+from concurrent.futures import ThreadPoolExecutor
 import time
 from rest_framework.decorators import api_view
 from chat.models import Conversation, UnknownWord
+from chat.tasks.update_unknown_words import update_unknown_words
 from constants.header_constants import HEADER_USER_EMAIL
 from constants.unknown_word_constants import DECREASE_CONFIDENCE_ON_WRONG_MCQ_ANSWER, INCREASE_CONFIDENCE_ON_CORRECT_MCQ_ANSWER
 from mcq.models import MCTQuestion, MCTTest
@@ -11,7 +13,24 @@ from utils.http_utils import generate_error_response, generate_success_response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.utils import timezone
+import logging
 
+logger = logging.getLogger(__name__)
+
+_executor = ThreadPoolExecutor()
+
+
+def handle_future_exception(future, future_name: str):
+    try:
+        # This will re-raise any exception that was caught during the execution of the task.
+        future.result()
+    except Exception as e:
+        logger.error(f"An error occurred during future {future_name}")
+        logger.error(future.exception())
+
+
+def handle_unknown_words_future_exception(future):
+    handle_future_exception(future, "unknown_words")
 
 @swagger_auto_schema(
     method='post',
@@ -173,7 +192,6 @@ def finish_mcq_test(request):
     
     test = MCTTest.objects.get(id=testId)
     
-    
     # Check if all questions have been answered
     total_questions = test.questions.count()
     answered_questions = test.questions.filter(hasUserAnswered=True).count()
@@ -203,8 +221,15 @@ def finish_mcq_test(request):
     
     # Update conversation to update words
     conversation: Conversation = test.conversation
-    conversation.update_words = True
-    conversation.save()
+    
+    logger.info("Updating unknown words for conversation after MCQ {}".format(conversation.id))
+    future_unknown_words = _executor.submit(update_unknown_words, conversation.id, email)
+    future_unknown_words.add_done_callback(handle_unknown_words_future_exception)
+    logger.info("Unknown words updated for conversation after MCQ {}".format(conversation.id))
+    
+    # update_unknown_words(conversation.id, email)
+    # conversation.update_words = True
+    # conversation.save()
     
     test_serializer = MCTTestSerializer(test)
     
